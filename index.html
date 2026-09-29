@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Чарджоу, школа №20</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  background: #cabfa5;
+  color: #3d2f1e;
+  padding: 12px;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.16;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(0,0,0,0.5) 0.5px, transparent 1px),
+    radial-gradient(circle at 70% 60%, rgba(0,0,0,0.4) 0.5px, transparent 1px),
+    radial-gradient(circle at 40% 80%, rgba(0,0,0,0.5) 0.5px, transparent 1px),
+    radial-gradient(circle at 85% 15%, rgba(0,0,0,0.4) 0.5px, transparent 1px);
+  background-size: 3px 3px, 5px 5px, 4px 4px, 6px 6px;
+  mix-blend-mode: multiply;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(60,40,20,0.3) 100%);
+}
+
+.container { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+
+header { text-align: center; margin-bottom: 16px; }
+header h1 {
+  font-size: 26px;
+  color: #4a3520;
+  margin-bottom: 4px;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.3), 0 -1px 0 rgba(0,0,0,0.15);
+}
+header p { font-size: 14px; color: #6b5438; font-style: italic; }
+
+.periods { display: flex; justify-content: center; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
+.period-btn {
+  padding: 10px 20px;
+  font-size: 15px;
+  font-family: Georgia, serif;
+  background: #d9cfb8;
+  border: 2px solid #8b7548;
+  border-radius: 4px;
+  color: #4a3520;
+  cursor: pointer;
+  transition: 0.2s;
+  flex: 1;
+  min-width: 90px;
+  max-width: 150px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.15);
+}
+.period-btn:hover { background: #c9bda0; }
+.period-btn.active {
+  background: #4a6b3a;
+  color: #efe6cf;
+  border-color: #2d4520;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* ====== КЛАСС ====== */
+.classroom-wrap {
+  background: #d9cfb8;
+  border: 3px solid #8b7548;
+  border-radius: 6px;
+  padding: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2), inset 0 0 40px rgba(139,117,72,0.2);
+  overflow: hidden;
+}
+.classroom-scale { width: 100%; overflow: hidden; position: relative; }
+
+.classroom {
+  position: relative;
+  width: 1040px;
+  min-width: 1040px;
+  margin: 0 auto;
+  background: #e8ddc0;
+  background-image: linear-gradient(180deg, #e8ddc0 0%, #ddd0b0 100%);
+  border-radius: 4px;
+  padding: 20px 20px 25px 20px;
+  box-shadow: inset 0 0 60px rgba(139,117,72,0.25);
+  transform-origin: top left;
+  transition: transform 0.2s;
+}
+
+.wall-top, .wall-left, .wall-right {
+  position: absolute;
+  background: linear-gradient(180deg, #c9b88a, #a89468);
+}
+.wall-top { top: 0; left: 0; right: 0; height: 12px; border-radius: 4px 4px 0 0; }
+.wall-left { top: 0; bottom: 0; left: 0; width: 12px; }
+.wall-right { top: 0; bottom: 0; right: 0; width: 12px; }
+
+/* ====== ДОСКА ====== */
+.blackboard {
+  background: #3a4a35;
+  background-image:
+    radial-gradient(ellipse at 25% 35%, rgba(255,255,255,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 75% 65%, rgba(0,0,0,0.2) 0%, transparent 60%);
+  border: 8px solid #7a5e34;
+  border-radius: 3px;
+  height: 100px;
+  margin: 30px 40px 0 40px;
+  box-shadow: inset 0 0 50px rgba(0,0,0,0.55), 0 4px 8px rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(240,235,220,0.6);
+  font-size: 18px;
+  letter-spacing: 5px;
+  font-style: italic;
+  position: relative;
+  font-family: 'Courier New', monospace;
+}
+.blackboard::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(255,255,255,0.05) 0%, transparent 40%),
+    radial-gradient(circle at 70% 70%, rgba(255,255,255,0.03) 0%, transparent 30%);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* ====== СТОЛ УЧИТЕЛЯ ====== */
+.teacher-desk {
+  width: 200px;
+  height: 72px;
+  margin: 22px auto 26px;
+  background: linear-gradient(180deg, #b8935f 0%, #8b6238 100%);
+  border: 2px solid #5e3f1e;
+  border-radius: 3px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.9);
+  font-size: 11px;
+  text-align: center;
+  padding: 6px;
+  letter-spacing: 1px;
+  position: relative;
+}
+.teacher-desk::before {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 12px;
+  width: 8px;
+  height: 12px;
+  background: #5e3f1e;
+  border-radius: 0 0 2px 2px;
+  box-shadow: 168px 0 0 #5e3f1e;
+}
+.teacher-desk::after {
+  content: '';
+  position: absolute;
+  top: 8px; left: 14px;
+  width: 26px; height: 18px;
+  background: rgba(240,235,220,0.9);
+  border-radius: 1px;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.15);
+  transform: rotate(-4deg);
+}
+
+/* ====== ОКНА ====== */
+.windows-col {
+  position: absolute;
+  left: 22px;
+  top: 175px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+.window {
+  width: 20px;
+  height: 120px;
+  background: linear-gradient(180deg, #d0e4f0 0%, #a0c0dc 60%, #88b0cc 100%);
+  border: 3px solid #8b6f3e;
+  border-radius: 2px;
+  box-shadow:
+    0 0 24px rgba(200,220,240,0.8),
+    inset 0 0 10px rgba(255,255,255,0.5),
+    0 2px 4px rgba(0,0,0,0.2);
+  position: relative;
+}
+.window::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: -3px; right: -3px; height: 3px;
+  background: #8b6f3e;
+}
+.window::after {
+  content: '';
+  position: absolute;
+  bottom: -24px;
+  left: -6px;
+  width: 30px;
+  height: 20px;
+  background:
+    radial-gradient(circle at 30% 30%, #7a9a52 0%, #4a6b3a 70%),
+    radial-gradient(circle at 70% 40%, #8aaa5a 0%, transparent 60%);
+  border-radius: 50% 50% 15% 15%;
+  box-shadow: 0 2px 0 #5e3f1e, inset 0 -2px 3px rgba(0,0,0,0.2);
+}
+
+/* ====== ПАРТЫ ====== */
+.seats-grid {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  margin-top: 14px;
+  padding: 0 20px;
+}
+.seat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.desk-pair {
+  position: relative;
+  display: flex;
+  gap: 4px;
+  background: #8b6238;
+  border: 2px solid #5e3f1e;
+  border-radius: 3px;
+  padding: 4px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.desk-pair::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 8px;
+  background: linear-gradient(180deg, #a88868, #7a5a38);
+  border: 1px solid #5e3f1e;
+  border-radius: 3px 3px 0 0;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.25);
+}
+.desk-pair::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 10px;
+  width: 6px;
+  height: 10px;
+  background: #5e3f1e;
+  border-radius: 0 0 2px 2px;
+  box-shadow: 158px 0 0 #5e3f1e;
+}
+
+.seat {
+  width: 94px;
+  height: 76px;
+  background: linear-gradient(180deg, #efe6cf 0%, #ddd0b0 100%);
+  border: 1px solid #8b7548;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: 0.2s;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 4px;
+  font-size: 10px;
+  color: #3d2f1e;
+  text-align: center;
+}
+.seat:hover {
+  background: linear-gradient(180deg, #faf3dd 0%, #e8ddc0 100%);
+  box-shadow: inset 0 0 12px rgba(74,107,58,0.35);
+  transform: translateY(-1px);
+}
+.seat.taken {
+  background: linear-gradient(180deg, #d8dfc5 0%, #c0cba8 100%);
+  border-color: #5e7a4a;
+}
+.seat.taken:hover {
+  background: linear-gradient(180deg, #e4ebd2 0%, #ccd7b5 100%);
+}
+
+.seat-name {
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: bold;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+  max-width: 100%;
+  padding: 0 3px;
+}
+
+.seat .free {
+  font-size: 9px;
+  color: #a89468;
+  font-style: italic;
+  letter-spacing: 0.5px;
+}
+.seat .plus {
+  font-size: 22px;
+  color: #b89868;
+  line-height: 1;
+  margin-bottom: 1px;
+}
+
+/* ====== МОДАЛКА ====== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(40,25,10,0.7);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  overflow-y: auto;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: #efe6cf;
+  border: 3px solid #8b7548;
+  border-radius: 6px;
+  padding: 22px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.5);
+  max-height: 92vh;
+  overflow-y: auto;
+}
+.modal h2 { color: #3a4a35; font-size: 20px; margin-bottom: 4px; }
+.modal-sub { color: #6b5438; font-size: 13px; font-style: italic; margin-bottom: 14px; }
+.modal label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  color: #4a3520;
+  margin: 12px 0 4px;
+}
+.modal input[type="text"], .modal textarea {
+  width: 100%;
+  padding: 12px;
+  font-family: Georgia, serif;
+  font-size: 16px;
+  border: 2px solid #a89468;
+  border-radius: 4px;
+  background: #faf3dd;
+  color: #3d2f1e;
+}
+.modal textarea { resize: vertical; min-height: 60px; }
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.btn-cancel, .btn-save {
+  padding: 14px 22px;
+  font-family: Georgia, serif;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.2s;
+  flex: 1;
+  min-width: 100px;
+}
+.btn-cancel { background: #ddd0b0; border: 2px solid #8b7548; color: #4a3520; }
+.btn-cancel:hover { background: #c9bda0; }
+.btn-save { background: #4a6b3a; border: 2px solid #2d4520; color: #efe6cf; }
+.btn-save:hover { background: #3a5a2a; }
+.btn-save:disabled { opacity: 0.6; cursor: wait; }
+.btn-delete {
+  background: #8b3a2a;
+  border: 2px solid #5e1e10;
+  color: #efe6cf;
+  padding: 14px 22px;
+  font-family: Georgia, serif;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 8px;
+}
+.btn-delete:hover { background: #732a1c; }
+.modal-error {
+  color: #8b3a2a;
+  font-size: 14px;
+  margin-top: 10px;
+  min-height: 18px;
+  text-align: center;
+}
+.loading {
+  text-align: center;
+  padding: 30px;
+  color: #6b5438;
+  font-style: italic;
+  font-size: 15px;
+}
+
+/* ====== ПЕРЕКЛЮЧАТЕЛЬ РЯДОВ ====== */
+.row-switcher {
+  display: none;
+  justify-content: center;
+  gap: 6px;
+  margin: 12px 0 8px;
+  flex-wrap: wrap;
+}
+.row-btn {
+  padding: 10px 18px;
+  font-family: Georgia, serif;
+  font-size: 14px;
+  background: #d9cfb8;
+  border: 2px solid #8b7548;
+  border-radius: 4px;
+  color: #4a3520;
+  cursor: pointer;
+  flex: 1;
+  min-width: 80px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+}
+.row-btn.active {
+  background: #5e7a4a;
+  color: #efe6cf;
+  border-color: #3a4a35;
+}
+
+/* ====== МОБИЛЬНАЯ ====== */
+@media (max-width: 700px) {
+  body { padding: 8px; }
+
+  header h1 { font-size: 20px; }
+  header p { font-size: 12px; }
+
+  .period-btn { padding: 10px 12px; font-size: 14px; min-width: 70px; }
+
+  .classroom-scale { display: none; }
+  .classroom-wrap {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .mobile-classroom {
+    display: block;
+  }
+
+  .mobile-blackboard {
+    background: #3a4a35;
+    background-image:
+      radial-gradient(ellipse at 30% 40%, rgba(255,255,255,0.06) 0%, transparent 55%),
+      radial-gradient(ellipse at 70% 70%, rgba(0,0,0,0.2) 0%, transparent 60%);
+    border: 6px solid #7a5e34;
+    border-radius: 3px;
+    height: 66px;
+    margin: 0 0 14px;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 3px 6px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(240,235,220,0.6);
+    font-size: 14px;
+    letter-spacing: 4px;
+    font-style: italic;
+    font-family: 'Courier New', monospace;
+    position: relative;
+  }
+  .mobile-teacher-desk {
+    width: 160px;
+    height: 58px;
+    margin: 0 auto 20px;
+    background: linear-gradient(180deg, #b8935f 0%, #8b6238 100%);
+    border: 2px solid #5e3f1e;
+    border-radius: 3px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.9);
+    font-size: 10px;
+    letter-spacing: 1px;
+    position: relative;
+  }
+  .mobile-teacher-desk::after {
+    content: '';
+    position: absolute;
+    top: 6px; left: 10px;
+    width: 20px; height: 14px;
+    background: rgba(240,235,220,0.9);
+    border-radius: 1px;
+    transform: rotate(-4deg);
+  }
+
+  .mobile-seats {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 0 2px;
+  }
+
+  .mobile-desk-pair {
+    position: relative;
+    display: flex;
+    gap: 6px;
+    background: #8b6238;
+    border: 2px solid #5e3f1e;
+    border-radius: 3px;
+    padding: 6px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+  .mobile-desk-pair::before {
+    content: '';
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70px;
+    height: 7px;
+    background: linear-gradient(180deg, #a88868, #7a5a38);
+    border: 1px solid #5e3f1e;
+    border-radius: 3px 3px 0 0;
+  }
+
+  .mobile-desk-pair .seat {
+    width: 50%;
+    height: 90px;
+    flex: 1;
+    font-size: 12px;
+  }
+  .mobile-desk-pair .seat-name {
+    font-size: 13px;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+  .mobile-desk-pair .seat .plus { font-size: 26px; }
+  .mobile-desk-pair .seat .free { font-size: 10px; }
+
+  .modal { padding: 16px; }
+  .modal h2 { font-size: 18px; }
+}
+
+.mobile-classroom { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Чарджоу, школа №20</h1>
+    <p>Наш класс — найдите своё место</p>
+  </header>
+
+  <div class="periods">
+    <button class="period-btn active" data-period="5">5 класс</button>
+    <button class="period-btn" data-period="9">9 класс</button>
+    <button class="period-btn" data-period="11">11 класс</button>
+  </div>
+
+  <div class="row-switcher" id="rowSwitcher">
+    <button class="row-btn active" data-row="1">1 ряд</button>
+    <button class="row-btn" data-row="2">2 ряд</button>
+    <button class="row-btn" data-row="3">3 ряд</button>
+  </div>
+
+  <div class="classroom-wrap">
+    <div class="classroom-scale" id="classroomScale">
+      <div class="classroom" id="classroom">
+        <div class="wall-top"></div>
+        <div class="wall-left"></div>
+        <div class="wall-right"></div>
+
+        <div class="blackboard">1  с е н т я б р я</div>
+
+        <div class="teacher-desk">Учительский<br>стол</div>
+
+        <div class="windows-col">
+          <div class="window"></div>
+          <div class="window"></div>
+          <div class="window"></div>
+        </div>
+
+        <div class="seats-grid" id="seatsGrid"></div>
+      </div>
+    </div>
+
+    <div class="mobile-classroom" id="mobileClassroom">
+      <div class="mobile-blackboard">1  с е н т я б р я</div>
+      <div class="mobile-teacher-desk">Учительский стол</div>
+      <div class="mobile-seats" id="mobileSeats"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2 id="modalTitle">Занять место</h2>
+    <p class="modal-sub" id="modalSub"></p>
+    <label>Имя и фамилия *</label>
+    <input type="text" id="inputName" placeholder="Например: Иван Петров" maxlength="60" autocomplete="name">
+    <label>Пара слов о себе (необязательно)</label>
+    <textarea id="inputComment" placeholder="Например: сидел с Петровым, вечно списывал" maxlength="200"></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="btnCancel">Отмена</button>
+      <button class="btn-save" id="btnSave">Сесть</button>
+    </div>
+    <div class="modal-error" id="modalError"></div>
+  </div>
+</div>
+
+<script>
+const GIST_ID = '6b347d5fa970a8457397bec520c34882';
+const GITHUB_TOKEN = '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';
+const API_URL = 'https://api.github.com/gists/' + GIST_ID;
+const FILE_NAME = 'seats.json';
+
+let currentPeriod = '5';
+let currentRow = '1';
+let seats = [];
+let cache = {};
+let editingSeat = null;
+
+const grid = document.getElementById('seatsGrid');
+const mobileSeats = document.getElementById('mobileSeats');
+const overlay = document.getElementById('modalOverlay');
+const modalTitle = document.getElementById('modalTitle');
+const modalSub = document.getElementById('modalSub');
+const inputName = document.getElementById('inputName');
+const inputComment = document.getElementById('inputComment');
+const btnSave = document.getElementById('btnSave');
+const btnCancel = document.getElementById('btnCancel');
+const modalError = document.getElementById('modalError');
+const classroom = document.getElementById('classroom');
+const classroomScale = document.getElementById('classroomScale');
+
+const isMobile = () => window.matchMedia('(max-width: 700px)').matches;
+
+function fitClassroom() {
+  if (isMobile()) return;
+  const availW = classroomScale.clientWidth - 8;
+  if (availW < 1040) {
+    const scale = availW / 1040;
+    classroom.style.transform = 'scale(' + scale + ')';
+    classroomScale.style.height = (classroom.offsetHeight * scale) + 'px';
+  } else {
+    classroom.style.transform = 'scale(1)';
+    classroomScale.style.height = 'auto';
+  }
+}
+window.addEventListener('resize', () => {
+  fitClassroom();
+  renderAll();
+});
+
+document.querySelectorAll('.period-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentPeriod = btn.dataset.period;
+    loadSeats();
+  });
+});
+
+document.querySelectorAll('.row-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.row-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentRow = btn.dataset.row;
+    renderMobile();
+  });
+});
+
+async function getAllSeats() {
+  const res = await fetch(API_URL, {
+    headers: { 'Accept': 'application/vnd.github+json' },
+    cache: 'no-store'
+  });
+  if (!res.ok) {
+    if (res.status === 404) throw new Error('Gist не найден — проверь GIST_ID');
+    throw new Error('GitHub API: HTTP ' + res.status);
+  }
+  const data = await res.json();
+  const file = data.files && data.files[FILE_NAME];
+  if (!file) throw new Error('В гисте нет файла ' + FILE_NAME);
+  let content = file.content;
+  if (file.truncated && file.raw_url) {
+    const raw = await fetch(file.raw_url, { cache: 'no-store' });
+    content = await raw.text();
+  }
+  try {
+    const parsed = JSON.parse(content);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+async function saveAll(all) {
+  const body = {
+    files: {
+      [FILE_NAME]: {
+        content: JSON.stringify(all, null, 2)
+      }
+    }
+  };
+  const res = await fetch(API_URL, {
+    method: 'PATCH',
+    headers: {
+      'Accept': 'application/vnd.github+json',
+      'Authorization': 'token ' + GITHUB_TOKEN,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    let detail = '';
+    try { detail = (await res.json()).message || ''; } catch (e) {}
+    if (res.status === 401) throw new Error('Токен неверный или истёк');
+    if (res.status === 403) throw new Error('Нет прав на запись (проверь scope gist)');
+    if (res.status === 404) throw new Error('Gist не найден');
+    throw new Error('GitHub API: HTTP ' + res.status + (detail ? ' — ' + detail : ''));
+  }
+}
+
+async function loadSeats() {
+  if (cache[currentPeriod]) {
+    seats = cache[currentPeriod];
+    renderAll();
+    refreshInBackground();
+    return;
+  }
+  grid.innerHTML = '<div class="loading">Загружаем места...</div>';
+  mobileSeats.innerHTML = '<div class="loading">Загружаем места...</div>';
+  try {
+    const all = await getAllSeats();
+    seats = all.filter(s => s.period === currentPeriod);
+    cache[currentPeriod] = seats;
+    renderAll();
+  } catch (err) {
+    const msg = '<div class="loading">Ошибка загрузки: ' + err.message + '</div>';
+    grid.innerHTML = msg;
+    mobileSeats.innerHTML = msg;
+  }
+}
+
+async function refreshInBackground() {
+  try {
+    const all = await getAllSeats();
+    seats = all.filter(s => s.period === currentPeriod);
+    cache[currentPeriod] = seats;
+    renderAll();
+  } catch (e) {}
+}
+
+function renderAll() {
+  renderGrid();
+  renderMobile();
+}
+
+function renderGrid() {
+  grid.innerHTML = '';
+  for (let row = 1; row <= 3; row++) {
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'seat-row';
+    for (let desk = 1; desk <= 5; desk++) {
+      const pairDiv = document.createElement('div');
+      pairDiv.className = 'desk-pair';
+      ['left', 'right'].forEach(side => pairDiv.appendChild(makeSeat(row, desk, side)));
+      rowDiv.appendChild(pairDiv);
+    }
+    grid.appendChild(rowDiv);
+  }
+  fitClassroom();
+}
+
+function renderMobile() {
+  mobileSeats.innerHTML = '';
+  const row = parseInt(currentRow, 10);
+  for (let desk = 1; desk <= 5; desk++) {
+    const pairDiv = document.createElement('div');
+    pairDiv.className = 'mobile-desk-pair';
+    ['left', 'right'].forEach(side => pairDiv.appendChild(makeSeat(row, desk, side)));
+    mobileSeats.appendChild(pairDiv);
+  }
+}
+
+function makeSeat(row, desk, side) {
+  const seatData = seats.find(s => s.row === row && s.desk === desk && s.side === side);
+  const div = document.createElement('div');
+  div.className = 'seat' + (seatData ? ' taken' : '');
+  if (seatData) {
+    const nameEl = document.createElement('div');
+    nameEl.className = 'seat-name';
+    nameEl.textContent = seatData.name || '';
+    div.appendChild(nameEl);
+    div.title = seatData.name + (seatData.comment ? ' — ' + seatData.comment : '');
+  } else {
+    const plus = document.createElement('div');
+    plus.className = 'plus';
+    plus.textContent = '+';
+    div.appendChild(plus);
+    const free = document.createElement('div');
+    free.className = 'free';
+    free.textContent = 'свободно';
+    div.appendChild(free);
+    div.title = 'Занять это место';
+  }
+  div.addEventListener('click', () => openSeat(row, desk, side, seatData));
+  return div;
+}
+
+function openSeat(row, desk, side, seatData) {
+  editingSeat = { row, desk, side, existing: seatData };
+  modalError.textContent = '';
+  inputName.value = seatData ? (seatData.name || '') : '';
+  inputComment.value = seatData ? (seatData.comment || '') : '';
+  const sideName = side === 'left' ? 'левое' : 'правое';
+  modalSub.textContent = 'Ряд ' + row + ', парта ' + desk + ', ' + sideName + ' место · ' + currentPeriod + ' класс';
+
+  if (seatData) {
+    modalTitle.textContent = 'Место занято';
+    if (seatData.comment) modalSub.textContent += ' · ' + seatData.comment;
+    btnSave.textContent = 'Сохранить';
+    showDeleteButton(seatData);
+  } else {
+    modalTitle.textContent = 'Занять место';
+    btnSave.textContent = 'Сесть';
+    hideDeleteButton();
+  }
+  overlay.classList.add('show');
+  setTimeout(() => inputName.focus(), 100);
+}
+
+function showDeleteButton(seatData) {
+  hideDeleteButton();
+  const btn = document.createElement('button');
+  btn.className = 'btn-delete';
+  btn.id = 'btnDelete';
+  btn.textContent = 'Освободить это место';
+  btn.addEventListener('click', () => deleteSeat(seatData));
+  document.querySelector('.modal-actions').prepend(btn);
+}
+
+function hideDeleteButton() {
+  const b = document.getElementById('btnDelete');
+  if (b) b.remove();
+}
+
+btnCancel.addEventListener('click', () => overlay.classList.remove('show'));
+overlay.addEventListener('click', e => { if (e.target === overlay) btnCancel.click(); });
+
+btnSave.addEventListener('click', async () => {
+  const name = inputName.value.trim();
+  if (!name) { modalError.textContent = 'Пожалуйста, введите имя'; return; }
+  btnSave.disabled = true;
+  btnSave.textContent = 'Сохраняем...';
+  modalError.textContent = '';
+  try {
+    const all = await getAllSeats();
+    const newSeat = {
+      period: currentPeriod,
+      row: editingSeat.row,
+      desk: editingSeat.desk,
+      side: editingSeat.side,
+      name: name,
+      comment: inputComment.value.trim() || null
+    };
+    const idx = all.findIndex(s =>
+      s.period === newSeat.period &&
+      s.row === newSeat.row &&
+      s.desk === newSeat.desk &&
+      s.side === newSeat.side
+    );
+    if (idx >= 0) all[idx] = newSeat;
+    else all.push(newSeat);
+    await saveAll(all);
+    overlay.classList.remove('show');
+    delete cache[currentPeriod];
+    await loadSeats();
+  } catch (err) {
+    modalError.textContent = 'Ошибка: ' + err.message;
+  } finally {
+    btnSave.disabled = false;
+    btnSave.textContent = editingSeat.existing ? 'Сохранить' : 'Сесть';
+  }
+});
+
+async function deleteSeat(seatData) {
+  if (!confirm('Освободить это место? Имя и комментарий будут удалены.')) return;
+  btnSave.disabled = true;
+  btnSave.textContent = 'Удаляем...';
+  try {
+    const all = await getAllSeats();
+    const filtered = all.filter(s => !(
+      s.period === seatData.period &&
+      s.row === seatData.row &&
+      s.desk === seatData.desk &&
+      s.side === seatData.side
+    ));
+    await saveAll(filtered);
+    overlay.classList.remove('show');
+    delete cache[currentPeriod];
+    await loadSeats();
+  } catch (err) {
+    modalError.textContent = 'Ошибка: ' + err.message;
+    btnSave.disabled = false;
+    btnSave.textContent = 'Сохранить';
+  }
+}
+
+loadSeats();
+</script>
+</body>
+</html>
