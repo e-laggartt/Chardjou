@@ -283,17 +283,13 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   background: linear-gradient(180deg, #e4ebd2 0%, #ccd7b5 100%);
 }
 
+/* Имя на парте — каждое слово на своей строке */
 .seat-name {
-  font-size: 15px;
-  line-height: 1.25;
   font-weight: bold;
+  line-height: 1.15;
+  text-align: center;
+  width: 100%;
   overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  word-break: break-word;
-  max-width: 100%;
-  padding: 0 4px;
 }
 
 .seat .free {
@@ -532,11 +528,6 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
     width: 60%;
     height: 9px;
   }
-  .mobile-desk-pair .seat-name {
-    font-size: 17px;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-  }
   .mobile-desk-pair .seat .plus { font-size: 30px; }
   .mobile-desk-pair .seat .free { font-size: 14px; }
 
@@ -617,6 +608,12 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
 
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzfzJa5q2a5Bab1x9LVC3iIosg6RyeKIVADQAvKn1XXTZ4OIVFkiBBOkg5hMdL0hRQf/exec';
+
+// Границы шрифта
+const NAME_MAX_DESKTOP = 16;
+const NAME_MIN_DESKTOP = 10;
+const NAME_MAX_MOBILE = 18;
+const NAME_MIN_MOBILE = 12;
 
 let currentPeriod = '5';
 let currentRow = '1';
@@ -726,6 +723,7 @@ function renderGrid() {
     grid.appendChild(rowDiv);
   }
   fitClassroom();
+  requestAnimationFrame(fitAllNames);
 }
 
 function renderMobile() {
@@ -737,6 +735,7 @@ function renderMobile() {
     ['left', 'right'].forEach(side => pairDiv.appendChild(makeSeat(row, desk, side)));
     mobileSeats.appendChild(pairDiv);
   }
+  requestAnimationFrame(fitAllNames);
 }
 
 function makeSeat(row, desk, side) {
@@ -746,7 +745,13 @@ function makeSeat(row, desk, side) {
   if (seatData) {
     const nameEl = document.createElement('div');
     nameEl.className = 'seat-name';
-    nameEl.textContent = seatData.name || '';
+    // Каждое слово — на своей строке
+    const words = (seatData.name || '').trim().split(/\s+/).filter(w => w);
+    words.forEach(w => {
+      const line = document.createElement('div');
+      line.textContent = w;
+      nameEl.appendChild(line);
+    });
     div.appendChild(nameEl);
     div.title = seatData.name + (seatData.comment ? ' — ' + seatData.comment : '');
   } else {
@@ -762,6 +767,74 @@ function makeSeat(row, desk, side) {
   }
   div.addEventListener('click', () => openSeat(row, desk, side, seatData));
   return div;
+}
+
+// ============ АВТОПОДГОНКА ШРИФТА ============
+// Находим самое длинное слово в имени, подбираем шрифт так,
+// чтобы оно влезло в ширину парты. Один размер для всех строк.
+
+function measureTextWidth(text, fontSize, fontWeight) {
+  const probe = document.createElement('span');
+  probe.style.cssText = [
+    'position: absolute',
+    'visibility: hidden',
+    'white-space: nowrap',
+    'left: -9999px',
+    'top: 0',
+    'font-family: Georgia, "Times New Roman", serif',
+    'font-weight: ' + (fontWeight || 'bold'),
+    'font-size: ' + fontSize + 'px',
+    'line-height: 1'
+  ].join(';');
+  probe.textContent = text;
+  document.body.appendChild(probe);
+  const w = probe.getBoundingClientRect().width;
+  document.body.removeChild(probe);
+  return w;
+}
+
+function fitName(el) {
+  // Собираем слова из строк
+  const lines = Array.from(el.children);
+  if (lines.length === 0) return;
+
+  const words = lines.map(l => (l.textContent || '').trim()).filter(w => w);
+  if (words.length === 0) return;
+
+  // Самое длинное слово
+  const longest = words.reduce((a, b) => a.length >= b.length ? a : b, '');
+
+  const parent = el.parentElement;
+  if (!parent) return;
+
+  const cs = getComputedStyle(parent);
+  const padL = parseFloat(cs.paddingLeft) || 0;
+  const padR = parseFloat(cs.paddingRight) || 0;
+  const availW = parent.clientWidth - padL - padR - 2;
+
+  const maxSize = isMobile() ? NAME_MAX_MOBILE : NAME_MAX_DESKTOP;
+  const minSize = isMobile() ? NAME_MIN_MOBILE : NAME_MIN_DESKTOP;
+
+  // Если самое длинное слово влезает в максимальный размер — ставим максимум
+  if (measureTextWidth(longest, maxSize) <= availW) {
+    el.style.fontSize = maxSize + 'px';
+    return;
+  }
+
+  // Иначе уменьшаем до первого подходящего
+  for (let size = maxSize - 1; size >= minSize; size--) {
+    if (measureTextWidth(longest, size) <= availW) {
+      el.style.fontSize = size + 'px';
+      return;
+    }
+  }
+
+  // Не влезло даже в минимум — ставим минимум, не обрезаем
+  el.style.fontSize = minSize + 'px';
+}
+
+function fitAllNames() {
+  document.querySelectorAll('.seat-name').forEach(el => fitName(el));
 }
 
 function openSeat(row, desk, side, seatData) {
