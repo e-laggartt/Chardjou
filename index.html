@@ -253,7 +253,7 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   justify-content: center;
   overflow: visible;
   padding: 4px;
-  font-size: 10px;
+  font-size: 12px;
   color: #3d2f1e;
   text-align: center;
 }
@@ -284,8 +284,8 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
 }
 
 .seat-name {
-  font-size: 11px;
-  line-height: 1.2;
+  font-size: 15px;
+  line-height: 1.25;
   font-weight: bold;
   overflow: hidden;
   display: -webkit-box;
@@ -293,17 +293,17 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   -webkit-box-orient: vertical;
   word-break: break-word;
   max-width: 100%;
-  padding: 0 3px;
+  padding: 0 4px;
 }
 
 .seat .free {
-  font-size: 9px;
+  font-size: 13px;
   color: #a89468;
   font-style: italic;
   letter-spacing: 0.5px;
 }
 .seat .plus {
-  font-size: 22px;
+  font-size: 26px;
   color: #b89868;
   line-height: 1;
   margin-bottom: 1px;
@@ -395,7 +395,6 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   text-align: center;
 }
 
-/* Переключатель рядов — только на мобиле */
 .row-switcher {
   display: none;
   justify-content: center;
@@ -423,10 +422,8 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   border-color: #3a4a35;
 }
 
-/* По умолчанию мобильный блок скрыт */
 .mobile-classroom { display: none; }
 
-/* Мобильная версия */
 @media (max-width: 700px) {
   body { padding: 8px; overflow-y: auto; }
 
@@ -435,10 +432,8 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
 
   .period-btn { padding: 10px 12px; font-size: 14px; min-width: 70px; }
 
-  /* Показываем переключатель рядов */
   .row-switcher { display: flex; }
 
-  /* Скрываем десктопную схему, убираем обрезку */
   .classroom-scale { display: none; }
   .classroom-wrap {
     background: transparent;
@@ -449,7 +444,6 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
     height: auto;
   }
 
-  /* Показываем мобильный блок */
   .mobile-classroom { display: block; }
 
   .mobile-blackboard {
@@ -495,7 +489,7 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
     align-items: center;
     justify-content: center;
     color: rgba(255,255,255,0.9);
-    font-size: 10px;
+    font-size: 12px;
     letter-spacing: 1px;
     position: relative;
   }
@@ -529,9 +523,9 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
 
   .mobile-desk-pair .seat {
     width: 50%;
-    height: 90px;
+    height: 100px;
     flex: 1;
-    font-size: 12px;
+    font-size: 14px;
   }
   .mobile-desk-pair .seat::before {
     bottom: -11px;
@@ -539,12 +533,12 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
     height: 9px;
   }
   .mobile-desk-pair .seat-name {
-    font-size: 13px;
+    font-size: 17px;
     -webkit-line-clamp: 3;
     line-clamp: 3;
   }
-  .mobile-desk-pair .seat .plus { font-size: 26px; }
-  .mobile-desk-pair .seat .free { font-size: 10px; }
+  .mobile-desk-pair .seat .plus { font-size: 30px; }
+  .mobile-desk-pair .seat .free { font-size: 14px; }
 
   .modal { padding: 16px; }
   .modal h2 { font-size: 18px; }
@@ -677,7 +671,6 @@ document.querySelectorAll('.row-btn').forEach(btn => {
     btn.classList.add('active');
     currentRow = btn.dataset.row;
     renderMobile();
-    // прокрутить к партам
     const m = document.getElementById('mobileSeats');
     if (m) m.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
