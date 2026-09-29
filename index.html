@@ -77,7 +77,6 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
 }
 
-/* ====== КЛАСС ====== */
 .classroom-wrap {
   background: #d9cfb8;
   border: 3px solid #8b7548;
@@ -110,7 +109,6 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
 .wall-left { top: 0; bottom: 0; left: 0; width: 12px; }
 .wall-right { top: 0; bottom: 0; right: 0; width: 12px; }
 
-/* ====== ДОСКА ====== */
 .blackboard {
   background: #3a4a35;
   background-image:
@@ -118,35 +116,35 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
     radial-gradient(ellipse at 75% 65%, rgba(0,0,0,0.2) 0%, transparent 60%);
   border: 8px solid #7a5e34;
   border-radius: 3px;
-  height: 100px;
+  height: 110px;
   margin: 30px 40px 0 40px;
   box-shadow: inset 0 0 50px rgba(0,0,0,0.55), 0 4px 8px rgba(0,0,0,0.25);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: rgba(240,235,220,0.6);
-  font-size: 18px;
-  letter-spacing: 5px;
-  font-style: italic;
+  color: rgba(240,235,220,0.7);
   position: relative;
   font-family: 'Courier New', monospace;
+  text-align: center;
+  line-height: 1.4;
 }
-.blackboard::before {
-  content: '';
-  position: absolute;
-  inset: 6px;
-  background:
-    radial-gradient(circle at 30% 40%, rgba(255,255,255,0.05) 0%, transparent 40%),
-    radial-gradient(circle at 70% 70%, rgba(255,255,255,0.03) 0%, transparent 30%);
-  border-radius: 2px;
-  pointer-events: none;
+.blackboard .line1 {
+  font-size: 22px;
+  font-style: italic;
+  letter-spacing: 4px;
+}
+.blackboard .line2 {
+  font-size: 18px;
+  font-style: italic;
+  letter-spacing: 3px;
+  margin-top: 4px;
 }
 
-/* ====== СТОЛ УЧИТЕЛЯ ====== */
 .teacher-desk {
   width: 200px;
   height: 72px;
-  margin: 22px auto 26px;
+  margin: 22px auto 30px;
   background: linear-gradient(180deg, #b8935f 0%, #8b6238 100%);
   border: 2px solid #5e3f1e;
   border-radius: 3px;
@@ -155,22 +153,11 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   align-items: center;
   justify-content: center;
   color: rgba(255,255,255,0.9);
-  font-size: 11px;
+  font-size: 12px;
   text-align: center;
   padding: 6px;
   letter-spacing: 1px;
   position: relative;
-}
-.teacher-desk::before {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: 12px;
-  width: 8px;
-  height: 12px;
-  background: #5e3f1e;
-  border-radius: 0 0 2px 2px;
-  box-shadow: 168px 0 0 #5e3f1e;
 }
 .teacher-desk::after {
   content: '';
@@ -183,14 +170,13 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   transform: rotate(-4deg);
 }
 
-/* ====== ОКНА ====== */
 .windows-col {
   position: absolute;
   left: 22px;
   top: 175px;
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 50px;
 }
 .window {
   width: 20px;
@@ -210,18 +196,20 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   top: 50%; left: -3px; right: -3px; height: 3px;
   background: #8b6f3e;
 }
+/* Горшок с цветком — справа от окна (ближе к классу) */
 .window::after {
   content: '';
   position: absolute;
-  bottom: -24px;
-  left: -6px;
-  width: 30px;
-  height: 20px;
+  top: 50%;
+  right: -32px;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 22px;
   background:
-    radial-gradient(circle at 30% 30%, #7a9a52 0%, #4a6b3a 70%),
+    radial-gradient(circle at 40% 30%, #7a9a52 0%, #4a6b3a 70%),
     radial-gradient(circle at 70% 40%, #8aaa5a 0%, transparent 60%);
-  border-radius: 50% 50% 15% 15%;
-  box-shadow: 0 2px 0 #5e3f1e, inset 0 -2px 3px rgba(0,0,0,0.2);
+  border-radius: 50% 50% 25% 25%;
+  box-shadow: 0 3px 0 #5e3f1e, inset 0 -3px 4px rgba(0,0,0,0.2);
 }
 
 /* ====== ПАРТЫ ====== */
@@ -235,7 +223,7 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
 .seat-row {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 22px;
 }
 
 .desk-pair {
@@ -247,30 +235,6 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   border-radius: 3px;
   padding: 4px;
   box-shadow: 0 5px 10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
-}
-.desk-pair::before {
-  content: '';
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 8px;
-  background: linear-gradient(180deg, #a88868, #7a5a38);
-  border: 1px solid #5e3f1e;
-  border-radius: 3px 3px 0 0;
-  box-shadow: 0 2px 3px rgba(0,0,0,0.25);
-}
-.desk-pair::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 10px;
-  width: 6px;
-  height: 10px;
-  background: #5e3f1e;
-  border-radius: 0 0 2px 2px;
-  box-shadow: 158px 0 0 #5e3f1e;
 }
 
 .seat {
@@ -285,16 +249,30 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: visible;
   padding: 4px;
   font-size: 10px;
   color: #3d2f1e;
   text-align: center;
 }
+/* Стул — снизу от парты (со стороны ученика) */
+.seat::before {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 52px;
+  height: 10px;
+  background: linear-gradient(180deg, #a88868, #7a5a38);
+  border: 1px solid #5e3f1e;
+  border-radius: 0 0 3px 3px;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.25);
+}
+
 .seat:hover {
   background: linear-gradient(180deg, #faf3dd 0%, #e8ddc0 100%);
   box-shadow: inset 0 0 12px rgba(74,107,58,0.35);
-  transform: translateY(-1px);
 }
 .seat.taken {
   background: linear-gradient(180deg, #d8dfc5 0%, #c0cba8 100%);
@@ -330,7 +308,6 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   margin-bottom: 1px;
 }
 
-/* ====== МОДАЛКА ====== */
 .modal-overlay {
   display: none;
   position: fixed;
@@ -416,15 +393,7 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   min-height: 18px;
   text-align: center;
 }
-.loading {
-  text-align: center;
-  padding: 30px;
-  color: #6b5438;
-  font-style: italic;
-  font-size: 15px;
-}
 
-/* ====== ПЕРЕКЛЮЧАТЕЛЬ РЯДОВ ====== */
 .row-switcher {
   display: none;
   justify-content: center;
@@ -451,7 +420,6 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   border-color: #3a4a35;
 }
 
-/* ====== МОБИЛЬНАЯ ====== */
 @media (max-width: 700px) {
   body { padding: 8px; }
 
@@ -480,19 +448,30 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
       radial-gradient(ellipse at 70% 70%, rgba(0,0,0,0.2) 0%, transparent 60%);
     border: 6px solid #7a5e34;
     border-radius: 3px;
-    height: 66px;
+    padding: 12px 8px;
     margin: 0 0 14px;
     box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 3px 6px rgba(0,0,0,0.25);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: rgba(240,235,220,0.6);
-    font-size: 14px;
-    letter-spacing: 4px;
-    font-style: italic;
+    color: rgba(240,235,220,0.7);
     font-family: 'Courier New', monospace;
-    position: relative;
+    text-align: center;
+    line-height: 1.4;
   }
+  .mobile-blackboard .line1 {
+    font-size: 15px;
+    font-style: italic;
+    letter-spacing: 2px;
+  }
+  .mobile-blackboard .line2 {
+    font-size: 13px;
+    font-style: italic;
+    letter-spacing: 2px;
+    margin-top: 3px;
+  }
+
   .mobile-teacher-desk {
     width: 160px;
     height: 58px;
@@ -522,7 +501,7 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   .mobile-seats {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 22px;
     padding: 0 2px;
   }
 
@@ -536,24 +515,17 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
     padding: 6px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
   }
-  .mobile-desk-pair::before {
-    content: '';
-    position: absolute;
-    top: -9px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 70px;
-    height: 7px;
-    background: linear-gradient(180deg, #a88868, #7a5a38);
-    border: 1px solid #5e3f1e;
-    border-radius: 3px 3px 0 0;
-  }
 
   .mobile-desk-pair .seat {
     width: 50%;
     height: 90px;
     flex: 1;
     font-size: 12px;
+  }
+  .mobile-desk-pair .seat::before {
+    bottom: -11px;
+    width: 60%;
+    height: 9px;
   }
   .mobile-desk-pair .seat-name {
     font-size: 13px;
@@ -596,7 +568,10 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
         <div class="wall-left"></div>
         <div class="wall-right"></div>
 
-        <div class="blackboard">1  с е н т я б р я</div>
+        <div class="blackboard">
+          <div class="line1">И снова 3 сентября</div>
+          <div class="line2">М. Шуфутинский</div>
+        </div>
 
         <div class="teacher-desk">Учительский<br>стол</div>
 
@@ -611,7 +586,10 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
     </div>
 
     <div class="mobile-classroom" id="mobileClassroom">
-      <div class="mobile-blackboard">1  с е н т я б р я</div>
+      <div class="mobile-blackboard">
+        <div class="line1">И снова 3 сентября</div>
+        <div class="line2">М. Шуфутинский</div>
+      </div>
       <div class="mobile-teacher-desk">Учительский стол</div>
       <div class="mobile-seats" id="mobileSeats"></div>
     </div>
@@ -635,10 +613,7 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
 </div>
 
 <script>
-const GIST_ID = '6b347d5fa970a8457397bec520c34882';
-const GITHUB_TOKEN = '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';
-const API_URL = 'https://api.github.com/gists/' + GIST_ID;
-const FILE_NAME = 'seats.json';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzfzJa5q2a5Bab1x9LVC3iIosg6RyeKIVADQAvKn1XXTZ4OIVFkiBBOkg5hMdL0hRQf/exec';
 
 let currentPeriod = '5';
 let currentRow = '1';
@@ -697,85 +672,34 @@ document.querySelectorAll('.row-btn').forEach(btn => {
 });
 
 async function getAllSeats() {
-  const res = await fetch(API_URL, {
-    headers: { 'Accept': 'application/vnd.github+json' },
-    cache: 'no-store'
-  });
-  if (!res.ok) {
-    if (res.status === 404) throw new Error('Gist не найден — проверь GIST_ID');
-    throw new Error('GitHub API: HTTP ' + res.status);
-  }
+  const res = await fetch(API_URL, { cache: 'no-store' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
   const data = await res.json();
-  const file = data.files && data.files[FILE_NAME];
-  if (!file) throw new Error('В гисте нет файла ' + FILE_NAME);
-  let content = file.content;
-  if (file.truncated && file.raw_url) {
-    const raw = await fetch(file.raw_url, { cache: 'no-store' });
-    content = await raw.text();
-  }
-  try {
-    const parsed = JSON.parse(content);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    return [];
-  }
+  if (data && data.error) throw new Error(data.error);
+  return Array.isArray(data) ? data : [];
 }
 
 async function saveAll(all) {
-  const body = {
-    files: {
-      [FILE_NAME]: {
-        content: JSON.stringify(all, null, 2)
-      }
-    }
-  };
   const res = await fetch(API_URL, {
-    method: 'PATCH',
-    headers: {
-      'Accept': 'application/vnd.github+json',
-      'Authorization': 'token ' + GITHUB_TOKEN,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(body)
+    method: 'POST',
+    body: JSON.stringify({ seats: all })
   });
-  if (!res.ok) {
-    let detail = '';
-    try { detail = (await res.json()).message || ''; } catch (e) {}
-    if (res.status === 401) throw new Error('Токен неверный или истёк');
-    if (res.status === 403) throw new Error('Нет прав на запись (проверь scope gist)');
-    if (res.status === 404) throw new Error('Gist не найден');
-    throw new Error('GitHub API: HTTP ' + res.status + (detail ? ' — ' + detail : ''));
-  }
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  if (data.result !== 'ok') throw new Error(data.message || 'Ошибка сохранения');
 }
 
 async function loadSeats() {
-  if (cache[currentPeriod]) {
-    seats = cache[currentPeriod];
-    renderAll();
-    refreshInBackground();
-    return;
-  }
-  grid.innerHTML = '<div class="loading">Загружаем места...</div>';
-  mobileSeats.innerHTML = '<div class="loading">Загружаем места...</div>';
+  seats = cache[currentPeriod] || [];
+  renderAll();
   try {
     const all = await getAllSeats();
     seats = all.filter(s => s.period === currentPeriod);
     cache[currentPeriod] = seats;
     renderAll();
   } catch (err) {
-    const msg = '<div class="loading">Ошибка загрузки: ' + err.message + '</div>';
-    grid.innerHTML = msg;
-    mobileSeats.innerHTML = msg;
+    console.warn('Не удалось загрузить данные:', err.message);
   }
-}
-
-async function refreshInBackground() {
-  try {
-    const all = await getAllSeats();
-    seats = all.filter(s => s.period === currentPeriod);
-    cache[currentPeriod] = seats;
-    renderAll();
-  } catch (e) {}
 }
 
 function renderAll() {
