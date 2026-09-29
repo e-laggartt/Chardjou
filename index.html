@@ -420,6 +420,10 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   border-color: #3a4a35;
 }
 
+/* ====== МОБИЛЬНАЯ ВЕРСИЯ ====== */
+/* По умолчанию (десктоп) мобильный блок скрыт */
+.mobile-classroom { display: none; }
+
 @media (max-width: 700px) {
   body { padding: 8px; }
 
@@ -428,6 +432,7 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
 
   .period-btn { padding: 10px 12px; font-size: 14px; min-width: 70px; }
 
+  /* Скрываем десктопную схему */
   .classroom-scale { display: none; }
   .classroom-wrap {
     background: transparent;
@@ -437,9 +442,8 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
     overflow: visible;
   }
 
-  .mobile-classroom {
-    display: block;
-  }
+  /* Показываем мобильную */
+  .mobile-classroom { display: block; }
 
   .mobile-blackboard {
     background: #3a4a35;
@@ -538,8 +542,6 @@ header p { font-size: 14px; color: #6b5438; font-style: italic; }
   .modal { padding: 16px; }
   .modal h2 { font-size: 18px; }
 }
-
-.mobile-classroom { display: none; }
 </style>
 </head>
 <body>
@@ -777,6 +779,10 @@ function openSeat(row, desk, side, seatData) {
     btnSave.textContent = 'Сесть';
     hideDeleteButton();
   }
+
+  // Страховка: кнопка всегда активна при открытии
+  btnSave.disabled = false;
+
   overlay.classList.add('show');
   setTimeout(() => inputName.focus(), 100);
 }
@@ -858,6 +864,8 @@ async function deleteSeat(seatData) {
   }
 }
 
+// Рисуем пустые парты сразу, не дожидаясь сети
+renderAll();
 loadSeats();
 </script>
 </body>
