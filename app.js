@@ -10,16 +10,9 @@ const MONTHS_NOM = ['январь','февраль','март','апрель','�
 const MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 const DAYS_WEEK = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
 
-const DEFAULT_POTS = [
-  { x: 38, y: 210 },
-  { x: 38, y: 420 },
-  { x: 38, y: 650 }
-];
-
 let currentPeriod = '5';
 let currentRow = '1';
 let allSeats = [];
-let potsPositions = DEFAULT_POTS.slice();
 let editingSeat = null;
 let searchQuery = '';
 let birthdayAutoSwitched = false;
@@ -131,7 +124,7 @@ document.querySelectorAll('.period-btn').forEach(btn => {
     document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentPeriod = btn.dataset.period;
-    birthdayAutoSwitched = false; // при смене периода — снова разрешаем авто-переключение
+    birthdayAutoSwitched = false;
     renderAll();
     checkBirthdays();
   });
@@ -173,7 +166,9 @@ async function fetchAllSeats() {
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const data = await res.json();
   if (data && data.error) throw new Error(data.error);
-  return Array.isArray(data) ? data : [];
+  // Отбрасываем служебные записи (если остались от старой версии)
+  const arr = Array.isArray(data) ? data : [];
+  return arr.filter(item => !(item && item.type === 'flowers'));
 }
 async function pushAllSeats(seats) {
   const res = await fetch(API_URL, {
@@ -184,35 +179,18 @@ async function pushAllSeats(seats) {
   const data = await res.json();
   if (data.result !== 'ok') throw new Error(data.message || 'Ошибка сохранения');
 }
-function separateData(arr) {
-  const seats = [];
-  let pots = null;
-  arr.forEach(item => {
-    if (item && item.type === 'flowers' && Array.isArray(item.positions)) pots = item.positions;
-    else seats.push(item);
-  });
-  return { seats, pots };
-}
 function buildPayload() {
-  return allSeats.concat([{ type: 'flowers', positions: potsPositions }]);
+  // Никаких «цветов» в данных — только места
+  return allSeats;
 }
 
 // ====== СТАРТ ======
 async function initialLoad() {
   renderAll();
-  applyPotsPositions();
   try {
     const raw = await fetchAllSeats();
-    const { seats, pots } = separateData(raw);
-    allSeats = seats;
-    if (pots && pots.length === 3) {
-      potsPositions = pots.map((p, i) => ({
-        x: typeof p.x === 'number' ? p.x : DEFAULT_POTS[i].x,
-        y: typeof p.y === 'number' ? p.y : DEFAULT_POTS[i].y
-      }));
-    }
+    allSeats = raw;
     renderAll();
-    applyPotsPositions();
     checkBirthdays();
   } catch (err) {
     console.warn('Не удалось загрузить:', err.message);
@@ -255,13 +233,6 @@ async function deleteSeatOptimistic(seatData) {
     checkBirthdays();
     showToast('Не удалось удалить: ' + err.message);
     throw err;
-  }
-}
-async function savePotsPositions() {
-  try {
-    await pushAllSeats(buildPayload());
-  } catch (err) {
-    showToast('Не удалось сохранить цветы: ' + err.message);
   }
 }
 
@@ -552,64 +523,6 @@ function openList() {
   listOverlay.classList.add('show');
 }
 
-// ====== ПЕРЕТАСКИВАНИЕ ГОРШКОВ ======
-function applyPotsPositions() {
-  const pots = document.querySelectorAll('.flower-station:not(.birthday-pot)');
-  pots.forEach((el, i) => {
-    const p = potsPositions[i] || DEFAULT_POTS[i];
-    el.style.left = p.x + 'px';
-    el.style.top = p.y + 'px';
-    el.style.bottom = 'auto';
-  });
-}
-function initDrag() {
-  const wrapEl = classroomWrap;
-  const pots = document.querySelectorAll('.flower-station');
-  let dragState = null;
-  pots.forEach(el => el.addEventListener('pointerdown', onPointerDown));
-
-  function onPointerDown(e) {
-    const el = e.currentTarget;
-    if (el.classList.contains('birthday-pot')) return;
-    const index = parseInt(el.dataset.pot, 10);
-    if (isNaN(index)) return;
-    const rect = wrapEl.getBoundingClientRect();
-    const localX = e.clientX - rect.left;
-    const localY = e.clientY - rect.top;
-    const px = potsPositions[index] && typeof potsPositions[index].x === 'number' ? potsPositions[index].x : (parseFloat(el.style.left) || 0);
-    const py = potsPositions[index] && typeof potsPositions[index].y === 'number' ? potsPositions[index].y : (parseFloat(el.style.top) || 0);
-    dragState = { el, index, offsetX: localX - px, offsetY: localY - py, pointerId: e.pointerId };
-    el.classList.add('dragging');
-    el.setPointerCapture(e.pointerId);
-    e.preventDefault();
-  }
-  document.addEventListener('pointermove', onPointerMove);
-  document.addEventListener('pointerup', onPointerUp);
-  document.addEventListener('pointercancel', onPointerUp);
-
-  function onPointerMove(e) {
-    if (!dragState || e.pointerId !== dragState.pointerId) return;
-    const rect = wrapEl.getBoundingClientRect();
-    let localX = (e.clientX - rect.left) - dragState.offsetX;
-    let localY = (e.clientY - rect.top) - dragState.offsetY;
-    const maxX = wrapEl.offsetWidth - 40;
-    const maxY = wrapEl.offsetHeight - 40;
-    localX = Math.max(0, Math.min(maxX, localX));
-    localY = Math.max(0, Math.min(maxY, localY));
-    potsPositions[dragState.index] = { x: localX, y: localY };
-    dragState.el.style.left = localX + 'px';
-    dragState.el.style.top = localY + 'px';
-  }
-  function onPointerUp(e) {
-    if (!dragState || e.pointerId !== dragState.pointerId) return;
-    const el = dragState.el;
-    dragState = null;
-    el.classList.remove('dragging');
-    try { el.releasePointerCapture(e.pointerId); } catch (err) {}
-    savePotsPositions();
-  }
-}
-
 // ====== ДЕНЬ РОЖДЕНИЯ ======
 function getSeatRect(row, desk, side) {
   const root = isMobile() ? mobileSeats : grid;
@@ -630,14 +543,12 @@ function clearBirthdayLayer() {
   birthdayBanner.textContent = '';
 }
 
-// Показывает баннер + рисует праздник на видимом ряду
 function checkBirthdays() {
   clearBirthdayLayer();
   const seats = currentSeats();
   const bdaySeats = seats.filter(isBirthdayToday);
   if (bdaySeats.length === 0) return;
 
-  // Баннер сверху
   if (bdaySeats.length === 1) {
     birthdayBanner.textContent = '🎂 Сегодня день рождения у ' + bdaySeats[0].name + '! 🎉';
   } else {
@@ -646,7 +557,6 @@ function checkBirthdays() {
   }
   birthdayBanner.classList.add('show');
 
-  // ОДИН РАЗ при загрузке: переключаемся на ряд именинника (только на мобиле)
   if (isMobile() && !birthdayAutoSwitched) {
     birthdayAutoSwitched = true;
     const targetRow = String(bdaySeats[0].row);
@@ -659,15 +569,11 @@ function checkBirthdays() {
     }
   }
 
-  // Рисуем праздник на видимом ряду
   renderBirthdayForCurrentRow();
 }
 
-// Рисует плашку, горшок и фейерверк на видимых партах-именинниках
 function renderBirthdayForCurrentRow() {
-  // Очищаем только праздничный слой (баннер не трогаем)
   birthdayLayer.innerHTML = '';
-
   const seats = currentSeats();
   const bdaySeats = seats.filter(isBirthdayToday);
   if (bdaySeats.length === 0) return;
@@ -747,5 +653,4 @@ function renderBirthdayForCurrentRow() {
 // ====== СТАРТ ======
 fillBdaySelects();
 setBoardDate();
-initDrag();
 initialLoad();
