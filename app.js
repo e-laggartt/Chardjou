@@ -22,6 +22,7 @@ let allSeats = [];
 let potsPositions = DEFAULT_POTS.slice();
 let editingSeat = null;
 let searchQuery = '';
+let birthdayAutoSwitched = false;
 
 const grid = document.getElementById('seatsGrid');
 const mobileSeats = document.getElementById('mobileSeats');
@@ -130,6 +131,7 @@ document.querySelectorAll('.period-btn').forEach(btn => {
     document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentPeriod = btn.dataset.period;
+    birthdayAutoSwitched = false; // при смене периода — снова разрешаем авто-переключение
     renderAll();
     checkBirthdays();
   });
@@ -141,7 +143,7 @@ document.querySelectorAll('.row-btn').forEach(btn => {
     btn.classList.add('active');
     currentRow = btn.dataset.row;
     renderMobile();
-    checkBirthdays();
+    renderBirthdayForCurrentRow();
     const m = document.getElementById('mobileSeats');
     if (m) m.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
@@ -537,7 +539,7 @@ function openList() {
           b.classList.toggle('active', b.dataset.row === currentRow);
         });
         renderMobile();
-        checkBirthdays();
+        renderBirthdayForCurrentRow();
         const m = document.getElementById('mobileSeats');
         if (m) m.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else {
@@ -627,12 +629,15 @@ function clearBirthdayLayer() {
   birthdayBanner.classList.remove('show');
   birthdayBanner.textContent = '';
 }
+
+// Показывает баннер + рисует праздник на видимом ряду
 function checkBirthdays() {
   clearBirthdayLayer();
   const seats = currentSeats();
   const bdaySeats = seats.filter(isBirthdayToday);
   if (bdaySeats.length === 0) return;
 
+  // Баннер сверху
   if (bdaySeats.length === 1) {
     birthdayBanner.textContent = '🎂 Сегодня день рождения у ' + bdaySeats[0].name + '! 🎉';
   } else {
@@ -641,8 +646,9 @@ function checkBirthdays() {
   }
   birthdayBanner.classList.add('show');
 
-  // На мобиле открываем ряд именинника
-  if (isMobile() && bdaySeats.length > 0) {
+  // ОДИН РАЗ при загрузке: переключаемся на ряд именинника (только на мобиле)
+  if (isMobile() && !birthdayAutoSwitched) {
+    birthdayAutoSwitched = true;
     const targetRow = String(bdaySeats[0].row);
     if (currentRow !== targetRow) {
       currentRow = targetRow;
@@ -653,11 +659,24 @@ function checkBirthdays() {
     }
   }
 
-  requestAnimationFrame(() => {
-    const visibleBdaySeats = isMobile()
-      ? bdaySeats.filter(s => String(s.row) === currentRow)
-      : bdaySeats;
+  // Рисуем праздник на видимом ряду
+  renderBirthdayForCurrentRow();
+}
 
+// Рисует плашку, горшок и фейерверк на видимых партах-именинниках
+function renderBirthdayForCurrentRow() {
+  // Очищаем только праздничный слой (баннер не трогаем)
+  birthdayLayer.innerHTML = '';
+
+  const seats = currentSeats();
+  const bdaySeats = seats.filter(isBirthdayToday);
+  if (bdaySeats.length === 0) return;
+
+  const visibleBdaySeats = isMobile()
+    ? bdaySeats.filter(s => String(s.row) === currentRow)
+    : bdaySeats;
+
+  requestAnimationFrame(() => {
     visibleBdaySeats.forEach(seat => {
       const rect = getSeatRect(seat.row, seat.desk, seat.side);
       if (!rect) return;
