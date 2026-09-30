@@ -31,6 +31,7 @@
       <button class="period-btn" data-period="9">9 класс</button>
       <button class="period-btn" data-period="11">11 класс</button>
     </div>
+    <button class="list-btn" id="aboutBtn">О проекте</button>
     <button class="list-btn" id="listBtn">Список</button>
   </div>
 
@@ -65,13 +66,13 @@
       <div class="mobile-seats" id="mobileSeats"></div>
     </div>
 
-    <!-- Слой только для праздничных цветов (день рождения) -->
     <div class="flower-layer" id="flowerLayer">
       <div id="birthdayLayer"></div>
     </div>
   </div>
 </div>
 
+<!-- Модалка занять место -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <h2 id="modalTitle">Занять место</h2>
@@ -96,6 +97,7 @@
   </div>
 </div>
 
+<!-- Модалка список -->
 <div class="modal-overlay" id="listOverlay">
   <div class="modal list-modal">
     <h2 id="listTitle">Наш класс</h2>
@@ -103,6 +105,33 @@
     <div class="list-content" id="listContent"></div>
     <div class="modal-actions">
       <button class="btn-cancel" id="listClose">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- ПРИВЕТСТВЕННЫЙ ОВЕРЛЕЙ -->
+<div class="welcome-overlay" id="welcomeOverlay">
+  <div class="welcome-book">
+    <div class="welcome-vignette tv-tl"></div>
+    <div class="welcome-vignette tv-tr"></div>
+    <div class="welcome-vignette tv-bl"></div>
+    <div class="welcome-vignette tv-br"></div>
+
+    <div class="welcome-content">
+      <h1 class="welcome-title">Чарджоу, школа №20</h1>
+      <p class="welcome-sub">Наш класс — каким он был</p>
+
+      <div class="welcome-text">
+        <p>Привет, одноклассник!</p>
+        <p>Это виртуальный класс нашей школы. Три периода — 5, 9 и 11 класс. Можно сесть за ту парту, где ты сидел. Или за ту, где всегда мечтал.</p>
+        <p>Нажми на свободное место, напиши своё имя — и ты в классе.</p>
+        <p>Если хочешь, укажи дату рождения — в твой день рождения на парте появится цветок и фейерверк.</p>
+        <p>Кто уже сел — видно по именам. Ищи себя среди знакомых.</p>
+      </div>
+
+      <button class="welcome-btn" id="welcomeEnterBtn">Войти в класс →</button>
+
+      <p class="welcome-footer">Собрано одноклассниками, 2026</p>
     </div>
   </div>
 </div>
