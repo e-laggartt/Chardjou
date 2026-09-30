@@ -6,7 +6,7 @@ body {
   font-family: Georgia, 'Times New Roman', serif;
   background: #cabfa5;
   color: #3d2f1e;
-  padding: 12px;
+  padding: 12px;position: relative;
   min-height: 100vh;
 }
 body::before {
@@ -950,4 +950,201 @@ header p {
   .flower-station .leaf.l2 { bottom: 21px; left: 17px; }
 
   .birthday-label { font-size: 14px; padding: 4px 8px; }
+}
+/* ====== ПРИВЕТСТВЕННЫЙ ОВЕРЛЕЙ (КНИЖНАЯ СТРАНИЦА) ====== */
+.welcome-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(40, 25, 10, 0.85);
+  z-index: 50000;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+  backdrop-filter: blur(3px);
+}
+.welcome-overlay.show { display: flex; }
+
+.welcome-book {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+  background: #efe6cf;
+  background-image:
+    radial-gradient(ellipse at 20% 15%, rgba(180, 150, 100, 0.15) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 85%, rgba(180, 150, 100, 0.12) 0%, transparent 55%),
+    linear-gradient(180deg, #f2e9d2 0%, #e8dfc5 100%);
+  border: 1px solid #8b7548;
+  border-radius: 4px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    inset 0 0 100px rgba(139, 117, 72, 0.18),
+    inset 0 0 0 8px rgba(200, 180, 140, 0.2);
+  padding: 48px 52px 40px;
+  max-height: 92vh;
+  overflow-y: auto;
+  animation: bookIn 0.5s ease-out;
+}
+@keyframes bookIn {
+  0% { transform: scale(0.94) translateY(20px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Виньетки по углам — растительные веточки */
+.welcome-vignette {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  pointer-events: none;
+  opacity: 0.55;
+}
+.welcome-vignette::before,
+.welcome-vignette::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #6b8a4a 0%, #4a6b3a 70%, transparent 90%);
+  box-shadow: 0 0 3px rgba(74, 107, 58, 0.4);
+}
+.welcome-vignette.tv-tl {
+  top: 12px; left: 12px;
+  transform: rotate(0deg);
+}
+.welcome-vignette.tv-tl::before {
+  width: 18px; height: 9px; top: 6px; left: 4px;
+  transform: rotate(-25deg);
+}
+.welcome-vignette.tv-tl::after {
+  width: 14px; height: 7px; top: 18px; left: 18px;
+  transform: rotate(35deg);
+}
+
+.welcome-vignette.tv-tr {
+  top: 12px; right: 12px;
+  transform: scaleX(-1);
+}
+.welcome-vignette.tv-tr::before {
+  width: 18px; height: 9px; top: 6px; left: 4px;
+  transform: rotate(-25deg);
+}
+.welcome-vignette.tv-tr::after {
+  width: 14px; height: 7px; top: 18px; left: 18px;
+  transform: rotate(35deg);
+}
+
+.welcome-vignette.tv-bl {
+  bottom: 12px; left: 12px;
+  transform: scaleY(-1);
+}
+.welcome-vignette.tv-bl::before {
+  width: 18px; height: 9px; top: 6px; left: 4px;
+  transform: rotate(-25deg);
+}
+.welcome-vignette.tv-bl::after {
+  width: 14px; height: 7px; top: 18px; left: 18px;
+  transform: rotate(35deg);
+}
+
+.welcome-vignette.tv-br {
+  bottom: 12px; right: 12px;
+  transform: scale(-1, -1);
+}
+.welcome-vignette.tv-br::before {
+  width: 18px; height: 9px; top: 6px; left: 4px;
+  transform: rotate(-25deg);
+}
+.welcome-vignette.tv-br::after {
+  width: 14px; height: 7px; top: 18px; left: 18px;
+  transform: rotate(35deg);
+}
+
+.welcome-content {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.welcome-title {
+  font-family: 'Caveat', Georgia, serif;
+  font-weight: 700;
+  font-size: 52px;
+  color: #4a3520;
+  margin-bottom: 4px;
+  line-height: 1;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.welcome-sub {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  color: #6b5438;
+  font-style: italic;
+  margin-bottom: 28px;
+}
+
+.welcome-text {
+  font-family: 'PT Serif', Georgia, serif;
+  font-size: 16px;
+  color: #3d2f1e;
+  line-height: 1.6;
+  text-align: left;
+  max-width: 520px;
+  margin: 0 auto 28px;
+}
+.welcome-text p {
+  margin-bottom: 14px;
+  text-indent: 1.5em;
+}
+.welcome-text p:first-child {
+  text-indent: 0;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.welcome-btn {
+  font-family: 'Caveat', Georgia, cursive;
+  font-weight: 700;
+  font-size: 26px;
+  padding: 12px 36px;
+  background: linear-gradient(180deg, #d9cfb8 0%, #c9bda0 100%);
+  border: 2px solid #8b7548;
+  border-radius: 6px;
+  color: #4a3520;
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 4px 10px rgba(0, 0, 0, 0.15);
+}
+.welcome-btn:hover {
+  background: linear-gradient(180deg, #e8dfc5 0%, #d9cfb8 100%);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 6px 14px rgba(0, 0, 0, 0.2);
+}
+.welcome-btn:active { transform: translateY(0); }
+
+.welcome-footer {
+  font-family: Georgia, serif;
+  font-size: 12px;
+  color: #8a7a5a;
+  font-style: italic;
+  margin-top: 24px;
+  opacity: 0.8;
+}
+
+@media (max-width: 700px) {
+  .welcome-book {
+    padding: 32px 22px 28px;
+  }
+  .welcome-title { font-size: 38px; }
+  .welcome-sub { font-size: 13px; margin-bottom: 20px; }
+  .welcome-text { font-size: 15px; margin-bottom: 22px; }
+  .welcome-text p { margin-bottom: 12px; }
+  .welcome-text p:first-child { font-size: 16px; }
+  .welcome-btn { font-size: 22px; padding: 10px 28px; }
+  .welcome-vignette { width: 60px; height: 60px; }
 }
