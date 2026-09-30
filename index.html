@@ -71,6 +71,30 @@ header p {
 }
 .seats-counter b { color: #4a6b3a; font-style: normal; }
 
+/* Плашка с днём рождения */
+.birthday-banner {
+  display: none;
+  text-align: center;
+  margin: 10px auto 0;
+  max-width: 600px;
+  padding: 10px 18px;
+  background: linear-gradient(180deg, #fceea0 0%, #f4dd70 100%);
+  border: 2px solid #b89840;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(232,200,64,0.5);
+  font-family: 'Caveat', Georgia, cursive;
+  font-weight: 700;
+  font-size: 26px;
+  color: #4a3520;
+  line-height: 1.15;
+  animation: bannerGlow 2s ease-in-out infinite;
+}
+.birthday-banner.show { display: block; }
+@keyframes bannerGlow {
+  0%, 100% { box-shadow: 0 4px 12px rgba(232,200,64,0.5); }
+  50% { box-shadow: 0 4px 24px rgba(232,200,64,0.95); }
+}
+
 .search-bar {
   display: flex;
   justify-content: center;
@@ -142,7 +166,6 @@ header p {
 }
 .list-btn:hover { background: #c9bda0; }
 
-/* Обёртка класса — она же контейнер для горшков */
 .classroom-wrap {
   position: relative;
   background: #d9cfb8;
@@ -210,7 +233,7 @@ header p {
   pointer-events: none;
 }
 
-/* ====== ГОРШКИ — общий слой поверх класса ====== */
+/* ====== ГОРШКИ ====== */
 .flower-layer {
   position: absolute;
   inset: 0;
@@ -238,6 +261,16 @@ header p {
 .flower-station[data-pot="0"] { top: 210px; left: 38px; }
 .flower-station[data-pot="1"] { top: 420px; left: 38px; }
 .flower-station[data-pot="2"] { top: 650px; left: 38px; }
+
+/* Праздничный горшок — не таскается */
+.flower-station.birthday-pot {
+  cursor: default;
+  pointer-events: none;
+  z-index: 30;
+}
+.flower-station.birthday-pot .chamomile .center {
+  box-shadow: 0 0 8px #ffd700, 0 0 16px #ffaa00;
+}
 
 .flower-station .pot {
   position: absolute;
@@ -311,6 +344,77 @@ header p {
 .flower-station .chamomile .petal:nth-child(6) { transform: translate(-50%, -100%) rotate(225deg); }
 .flower-station .chamomile .petal:nth-child(7) { transform: translate(-50%, -100%) rotate(270deg); }
 .flower-station .chamomile .petal:nth-child(8) { transform: translate(-50%, -100%) rotate(315deg); }
+
+/* ====== ПРАЗДНИЧНАЯ ПЛАШКА НАД ПАРТОЙ ====== */
+.birthday-label {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: linear-gradient(180deg, #fceea0 0%, #f4dd70 100%);
+  border: 2px solid #b89840;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: 'Caveat', Georgia, cursive;
+  font-weight: 700;
+  font-size: 18px;
+  color: #4a3520;
+  white-space: nowrap;
+  z-index: 25;
+  box-shadow: 0 4px 12px rgba(232,200,64,0.6);
+  animation: labelPop 0.5s ease-out;
+  pointer-events: none;
+}
+@keyframes labelPop {
+  0% { transform: translate(-50%, -100%) scale(0.5); opacity: 0; }
+  70% { transform: translate(-50%, -100%) scale(1.08); opacity: 1; }
+  100% { transform: translate(-50%, -100%) scale(1); opacity: 1; }
+}
+
+/* ====== ФЕЙЕРВЕРК ====== */
+.fireworks {
+  position: absolute;
+  width: 0; height: 0;
+  pointer-events: none;
+  z-index: 24;
+}
+.fireworks .spark {
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: #ffd700;
+  box-shadow: 0 0 6px #ffd700, 0 0 12px #ff8800;
+  top: 0; left: 0;
+  animation: sparkFly 1.8s ease-out infinite;
+}
+@keyframes sparkFly {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(0.2);
+    opacity: 0;
+  }
+}
+/* Звёздочки */
+.fireworks .star {
+  position: absolute;
+  width: 0; height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-bottom: 6px solid #fff5b8;
+  filter: drop-shadow(0 0 3px #ffd700);
+  animation: starFly 2.4s ease-out infinite;
+}
+@keyframes starFly {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) rotate(360deg) scale(0.3);
+    opacity: 0;
+  }
+}
 
 .blackboard {
   background: #3a4a35;
@@ -471,6 +575,17 @@ header p {
 .seat.taken:hover {
   background: linear-gradient(180deg, #e4ebd2 0%, #ccd7b5 100%);
 }
+/* Именинник — золотая рамка */
+.seat.birthday {
+  background: linear-gradient(180deg, #fdf3c8 0%, #f4e090 100%);
+  border-color: #b89840;
+  box-shadow: 0 0 0 3px #e8c840, 0 0 24px rgba(232,200,64,0.75), 0 6px 14px rgba(0,0,0,0.4);
+  animation: seatGlow 2s ease-in-out infinite;
+}
+@keyframes seatGlow {
+  0%, 100% { box-shadow: 0 0 0 3px #e8c840, 0 0 24px rgba(232,200,64,0.75), 0 6px 14px rgba(0,0,0,0.4); }
+  50% { box-shadow: 0 0 0 3px #f4d55a, 0 0 32px rgba(232,200,64,1), 0 6px 14px rgba(0,0,0,0.4); }
+}
 
 .seat.dimmed { opacity: 0.25; }
 .seat.highlighted {
@@ -535,6 +650,11 @@ header p {
   font-style: italic;
   font-size: 13px;
 }
+.tooltip .tt-bday {
+  color: #ffd700;
+  font-size: 13px;
+  margin-top: 3px;
+}
 
 .modal-overlay {
   display: none;
@@ -578,6 +698,28 @@ header p {
   color: #3d2f1e;
 }
 .modal textarea { resize: vertical; min-height: 60px; }
+/* Строка с двумя выпадашками дня и месяца */
+.bday-row {
+  display: flex;
+  gap: 8px;
+}
+.bday-row select {
+  flex: 1;
+  padding: 10px 8px;
+  font-family: Georgia, serif;
+  font-size: 15px;
+  border: 2px solid #a89468;
+  border-radius: 4px;
+  background: #faf3dd;
+  color: #3d2f1e;
+  cursor: pointer;
+}
+.bday-hint {
+  font-size: 12px;
+  color: #8a7a5a;
+  font-style: italic;
+  margin-top: 4px;
+}
 .modal-actions { display: flex; gap: 10px; margin-top: 18px; justify-content: flex-end; flex-wrap: wrap; }
 .btn-cancel, .btn-save {
   padding: 14px 22px;
@@ -647,6 +789,12 @@ header p {
   color: #5a4a30;
   margin-top: 3px;
 }
+.list-item .li-bday {
+  font-size: 13px;
+  color: #b8860b;
+  margin-top: 3px;
+  font-weight: bold;
+}
 .list-empty {
   text-align: center;
   padding: 30px 10px;
@@ -706,6 +854,7 @@ header p {
   header h1 { font-size: 36px; }
   header p { font-size: 12px; }
   .seats-counter { font-size: 13px; }
+  .birthday-banner { font-size: 22px; }
   .search-bar { max-width: 100%; margin-top: 10px; }
   .period-btn { padding: 10px 12px; font-size: 14px; }
   .list-btn { padding: 10px 12px; font-size: 13px; }
@@ -819,7 +968,6 @@ header p {
   .modal { padding: 16px; }
   .modal h2 { font-size: 26px; }
 
-  /* На мобиле горшки меньше и позиционируются относительно контейнера */
   .flower-station {
     width: 32px;
     height: 32px;
@@ -832,6 +980,8 @@ header p {
   .flower-station .leaf { width: 8px; height: 4px; }
   .flower-station .leaf.l1 { bottom: 19px; left: 10px; }
   .flower-station .leaf.l2 { bottom: 21px; left: 17px; }
+
+  .birthday-label { font-size: 14px; padding: 4px 8px; }
 }
 </style>
 </head>
@@ -842,6 +992,8 @@ header p {
     <p>Наш класс — найдите своё место</p>
     <div class="seats-counter" id="seatsCounter"></div>
   </header>
+
+  <div class="birthday-banner" id="birthdayBanner"></div>
 
   <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Найти одноклассника по имени..." autocomplete="off">
@@ -862,7 +1014,6 @@ header p {
     <button class="row-btn" data-row="3">3 ряд</button>
   </div>
 
-  <!-- Обёртка класса — в ней и класс, и слой горшков -->
   <div class="classroom-wrap" id="classroomWrap">
     <div class="classroom-scale" id="classroomScale">
       <div class="classroom" id="classroom">
@@ -888,7 +1039,7 @@ header p {
       <div class="mobile-seats" id="mobileSeats"></div>
     </div>
 
-    <!-- Слой горшков — общий для десктопа и мобилы -->
+    <!-- Слой горшков + праздничные элементы -->
     <div class="flower-layer" id="flowerLayer">
       <div class="flower-station" data-pot="0">
         <div class="stem"></div>
@@ -925,16 +1076,28 @@ header p {
         </div>
         <div class="pot"></div>
       </div>
+
+      <!-- Сюда JS вставит праздничные горшки, плашки и фейерверки -->
+      <div id="birthdayLayer"></div>
     </div>
   </div>
 </div>
 
+<!-- Модалка занять место -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <h2 id="modalTitle">Занять место</h2>
     <p class="modal-sub" id="modalSub"></p>
     <label>Имя и фамилия *</label>
     <input type="text" id="inputName" placeholder="Например: Иван Петров" maxlength="60" autocomplete="name">
+
+    <label>Дата рождения (необязательно)</label>
+    <div class="bday-row">
+      <select id="inputBdayDay"><option value="">День</option></select>
+      <select id="inputBdayMonth"><option value="">Месяц</option></select>
+    </div>
+    <div class="bday-hint">Чтобы в ваш день рождения на парте появился цветок и фейерверк</div>
+
     <label>Пара слов о себе (необязательно)</label>
     <textarea id="inputComment" placeholder="Например: сидел с Петровым, вечно списывал" maxlength="200"></textarea>
     <div class="modal-actions">
@@ -945,6 +1108,7 @@ header p {
   </div>
 </div>
 
+<!-- Модалка список -->
 <div class="modal-overlay" id="listOverlay">
   <div class="modal list-modal">
     <h2 id="listTitle">Наш класс</h2>
@@ -959,6 +1123,7 @@ header p {
 <div class="tooltip" id="tooltip">
   <div class="tt-name" id="ttName"></div>
   <div class="tt-comment" id="ttComment"></div>
+  <div class="tt-bday" id="ttBday"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -971,6 +1136,10 @@ const NAME_MIN_DESKTOP = 10;
 const NAME_MAX_MOBILE = 18;
 const NAME_MIN_MOBILE = 12;
 const TOTAL_SEATS_PER_PERIOD = 30;
+
+const MONTHS_NOM = ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+const MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const DAYS_WEEK = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
 
 const DEFAULT_POTS = [
   { x: 38, y: 210 },
@@ -992,6 +1161,8 @@ const modalTitle = document.getElementById('modalTitle');
 const modalSub = document.getElementById('modalSub');
 const inputName = document.getElementById('inputName');
 const inputComment = document.getElementById('inputComment');
+const inputBdayDay = document.getElementById('inputBdayDay');
+const inputBdayMonth = document.getElementById('inputBdayMonth');
 const btnSave = document.getElementById('btnSave');
 const btnCancel = document.getElementById('btnCancel');
 const modalError = document.getElementById('modalError');
@@ -1003,6 +1174,9 @@ const seatsCounter = document.getElementById('seatsCounter');
 const boardDate = document.getElementById('boardDate');
 const mobileBoardDate = document.getElementById('mobileBoardDate');
 const searchInput = document.getElementById('searchInput');
+const birthdayBanner = document.getElementById('birthdayBanner');
+const birthdayLayer = document.getElementById('birthdayLayer');
+const flowerLayer = document.getElementById('flowerLayer');
 
 const listOverlay = document.getElementById('listOverlay');
 const listContent = document.getElementById('listContent');
@@ -1014,14 +1188,13 @@ const listClose = document.getElementById('listClose');
 const tooltip = document.getElementById('tooltip');
 const ttName = document.getElementById('ttName');
 const ttComment = document.getElementById('ttComment');
+const ttBday = document.getElementById('ttBday');
 
 const isMobile = () => window.matchMedia('(max-width: 700px)').matches;
 
 // ====== ДАТА НА ДОСКЕ ======
 function formatDate(d) {
-  const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-  const days = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
-  return d.getDate() + ' ' + months[d.getMonth()] + ', ' + days[d.getDay()];
+  return d.getDate() + ' ' + MONTHS_GEN[d.getMonth()] + ', ' + DAYS_WEEK[d.getDay()];
 }
 function setBoardDate() {
   const today = new Date();
@@ -1035,6 +1208,24 @@ function setBoardDate() {
   }
   boardDate.textContent = text;
   mobileBoardDate.textContent = text;
+}
+
+// ====== ЗАПОЛНЕНИЕ ВЫПАДАШЕК ДНЯ И МЕСЯЦА ======
+function fillBdaySelects() {
+  // Дни
+  for (let d = 1; d <= 31; d++) {
+    const opt = document.createElement('option');
+    opt.value = String(d);
+    opt.textContent = d;
+    inputBdayDay.appendChild(opt);
+  }
+  // Месяцы
+  for (let m = 0; m < 12; m++) {
+    const opt = document.createElement('option');
+    opt.value = String(m + 1); // 1..12
+    opt.textContent = MONTHS_NOM[m];
+    inputBdayMonth.appendChild(opt);
+  }
 }
 
 // ====== СЧЁТЧИК ======
@@ -1160,6 +1351,7 @@ async function initialLoad() {
     }
     renderAll();
     applyPotsPositions();
+    checkBirthdays();
   } catch (err) {
     console.warn('Не удалось загрузить:', err.message);
     showToast('Не удалось загрузить данные. Обновите страницу.');
@@ -1175,11 +1367,13 @@ async function saveSeatOptimistic(newSeat) {
   if (idx >= 0) allSeats[idx] = newSeat;
   else allSeats.push(newSeat);
   renderAll();
+  checkBirthdays();
   try {
     await pushAllSeats(buildPayload());
   } catch (err) {
     allSeats = prevAll;
     renderAll();
+    checkBirthdays();
     showToast('Не удалось сохранить: ' + err.message);
     throw err;
   }
@@ -1190,11 +1384,13 @@ async function deleteSeatOptimistic(seatData) {
     s.period === seatData.period && s.row === seatData.row && s.desk === seatData.desk && s.side === seatData.side
   ));
   renderAll();
+  checkBirthdays();
   try {
     await pushAllSeats(buildPayload());
   } catch (err) {
     allSeats = prevAll;
     renderAll();
+    checkBirthdays();
     showToast('Не удалось удалить: ' + err.message);
     throw err;
   }
@@ -1243,10 +1439,27 @@ function renderMobile() {
   }
   requestAnimationFrame(fitAllNames);
 }
+
+// Проверка: сегодня ли ДР у владельца места
+function isBirthdayToday(seat) {
+  if (!seat || !seat.birthday) return false;
+  const today = new Date();
+  const parts = seat.birthday.split('.');
+  const d = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10);
+  return d === today.getDate() && m === (today.getMonth() + 1);
+}
+
 function makeSeat(row, desk, side, seats) {
   const seatData = seats.find(s => s.row === row && s.desk === desk && s.side === side);
   const div = document.createElement('div');
   div.className = 'seat' + (seatData ? ' taken' : '');
+  if (seatData && isBirthdayToday(seatData)) {
+    div.classList.add('birthday');
+  }
+  div.dataset.row = row;
+  div.dataset.desk = desk;
+  div.dataset.side = side;
   if (seatData) {
     const nameEl = document.createElement('div');
     nameEl.className = 'seat-name';
@@ -1285,6 +1498,15 @@ function showTooltip(e, seatData) {
   } else {
     ttComment.style.display = 'none';
   }
+  if (seatData.birthday) {
+    const parts = seatData.birthday.split('.');
+    const d = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    ttBday.textContent = '🎂 ' + d + ' ' + MONTHS_GEN[m - 1];
+    ttBday.style.display = '';
+  } else {
+    ttBday.style.display = 'none';
+  }
   tooltip.classList.add('show');
   moveTooltip(e);
 }
@@ -1293,12 +1515,8 @@ function moveTooltip(e) {
   let x = e.clientX + pad;
   let y = e.clientY + pad;
   const rect = tooltip.getBoundingClientRect();
-  if (x + rect.width > window.innerWidth - 10) {
-    x = e.clientX - rect.width - pad;
-  }
-  if (y + rect.height > window.innerHeight - 10) {
-    y = e.clientY - rect.height - pad;
-  }
+  if (x + rect.width > window.innerWidth - 10) x = e.clientX - rect.width - pad;
+  if (y + rect.height > window.innerHeight - 10) y = e.clientY - rect.height - pad;
   tooltip.style.left = x + 'px';
   tooltip.style.top = y + 'px';
 }
@@ -1307,13 +1525,13 @@ function hideTooltip() {
 }
 
 // ====== АВТОПОДГОНКА ШРИФТА ======
-function measureTextWidth(text, fontSize, fontWeight) {
+function measureTextWidth(text, fontSize) {
   const probe = document.createElement('span');
   probe.style.cssText = [
     'position: absolute', 'visibility: hidden', 'white-space: nowrap',
     'left: -9999px', 'top: 0',
     'font-family: "PT Serif", Georgia, serif',
-    'font-weight: ' + (fontWeight || 'bold'),
+    'font-weight: bold',
     'font-size: ' + fontSize + 'px',
     'line-height: 1'
   ].join(';');
@@ -1353,6 +1571,18 @@ function openSeat(row, desk, side, seatData) {
   modalError.textContent = '';
   inputName.value = seatData ? (seatData.name || '') : '';
   inputComment.value = seatData ? (seatData.comment || '') : '';
+
+  // Разбираем дату рождения
+  inputBdayDay.value = '';
+  inputBdayMonth.value = '';
+  if (seatData && seatData.birthday) {
+    const parts = seatData.birthday.split('.');
+    if (parts.length === 2) {
+      inputBdayDay.value = String(parseInt(parts[0], 10));
+      inputBdayMonth.value = String(parseInt(parts[1], 10));
+    }
+  }
+
   const sideName = side === 'left' ? 'левое' : 'правое';
   modalSub.textContent = 'Ряд ' + row + ', парта ' + desk + ', ' + sideName + ' место · ' + currentPeriod + ' класс';
   if (seatData) {
@@ -1388,13 +1618,23 @@ overlay.addEventListener('click', e => { if (e.target === overlay) btnCancel.cli
 btnSave.addEventListener('click', () => {
   const name = inputName.value.trim();
   if (!name) { modalError.textContent = 'Пожалуйста, введите имя'; return; }
+
+  // Собираем birthday в формат "ДД.ММ" или null
+  let birthday = null;
+  const d = inputBdayDay.value;
+  const m = inputBdayMonth.value;
+  if (d && m) {
+    birthday = String(d).padStart(2, '0') + '.' + String(m).padStart(2, '0');
+  }
+
   const newSeat = {
     period: currentPeriod,
     row: editingSeat.row,
     desk: editingSeat.desk,
     side: editingSeat.side,
     name: name,
-    comment: inputComment.value.trim() || null
+    comment: inputComment.value.trim() || null,
+    birthday: birthday
   };
   overlay.classList.remove('show');
   saveSeatOptimistic(newSeat).catch(() => {});
@@ -1449,6 +1689,13 @@ function openList() {
       cEl.textContent = '«' + s.comment + '»';
       item.appendChild(cEl);
     }
+    if (s.birthday) {
+      const parts = s.birthday.split('.');
+      const bEl = document.createElement('div');
+      bEl.className = 'li-bday';
+      bEl.textContent = '🎂 ' + parseInt(parts[0], 10) + ' ' + MONTHS_GEN[parseInt(parts[1], 10) - 1];
+      item.appendChild(bEl);
+    }
 
     item.addEventListener('click', () => {
       listOverlay.classList.remove('show');
@@ -1476,9 +1723,8 @@ function openList() {
 }
 
 // ====== ПЕРЕТАСКИВАНИЕ ГОРШКОВ ======
-// Горшки теперь в .flower-layer — координаты считаем от .classroom-wrap
 function applyPotsPositions() {
-  const pots = document.querySelectorAll('.flower-station');
+  const pots = document.querySelectorAll('.flower-station:not(.birthday-pot)');
   pots.forEach((el, i) => {
     const p = potsPositions[i] || DEFAULT_POTS[i];
     el.style.left = p.x + 'px';
@@ -1498,7 +1744,10 @@ function initDrag() {
 
   function onPointerDown(e) {
     const el = e.currentTarget;
+    if (el.classList.contains('birthday-pot')) return;
     const index = parseInt(el.dataset.pot, 10);
+    if (isNaN(index)) return;
+
     const rect = wrapEl.getBoundingClientRect();
     const localX = e.clientX - rect.left;
     const localY = e.clientY - rect.top;
@@ -1546,7 +1795,126 @@ function initDrag() {
   }
 }
 
+// ====== ДЕНЬ РОЖДЕНИЯ: ГОРШОК, ПЛАШКА, ФЕЙЕРВЕРК ======
+function getSeatRect(row, desk, side) {
+  // Ищем .seat с нужными data-атрибутами — сперва в десктопной сетке,
+  // потом в мобильной (если на телефоне).
+  const root = isMobile() ? mobileSeats : grid;
+  const seatEl = root.querySelector('.seat[data-row="' + row + '"][data-desk="' + desk + '"][data-side="' + side + '"]');
+  if (!seatEl) return null;
+  const wrapRect = classroomWrap.getBoundingClientRect();
+  const r = seatEl.getBoundingClientRect();
+  return {
+    left: r.left - wrapRect.left,
+    top: r.top - wrapRect.top,
+    width: r.width,
+    height: r.height
+  };
+}
+
+function clearBirthdayLayer() {
+  birthdayLayer.innerHTML = '';
+  birthdayBanner.classList.remove('show');
+  birthdayBanner.textContent = '';
+}
+
+function checkBirthdays() {
+  clearBirthdayLayer();
+  const seats = currentSeats();
+  const bdaySeats = seats.filter(isBirthdayToday);
+
+  if (bdaySeats.length === 0) return;
+
+  // Плашка сверху
+  if (bdaySeats.length === 1) {
+    birthdayBanner.textContent = '🎂 Сегодня день рождения у ' + bdaySeats[0].name + '! 🎉';
+  } else {
+    const names = bdaySeats.map(s => s.name).join(', ');
+    birthdayBanner.textContent = '🎂 Сегодня день рождения: ' + names + '! 🎉';
+  }
+  birthdayBanner.classList.add('show');
+
+  // Для каждого именинника — горшок, плашка и фейерверк над партой
+  requestAnimationFrame(() => {
+    bdaySeats.forEach(seat => {
+      const rect = getSeatRect(seat.row, seat.desk, seat.side);
+      if (!rect) return;
+      const cx = rect.left + rect.width / 2;
+      const topY = rect.top;
+
+      // 1. Праздничный горшок на парте (внутри .seat — сам горшок поверх)
+      const potEl = document.createElement('div');
+      potEl.className = 'flower-station birthday-pot';
+      potEl.style.left = (cx - 20) + 'px';
+      potEl.style.top = (topY + rect.height - 40) + 'px';
+      potEl.style.bottom = 'auto';
+      potEl.innerHTML =
+        '<div class="stem"></div>' +
+        '<div class="leaf l1"></div>' +
+        '<div class="leaf l2"></div>' +
+        '<div class="chamomile">' +
+          '<div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>' +
+          '<div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>' +
+          '<div class="center"></div>' +
+        '</div>' +
+        '<div class="pot"></div>';
+      birthdayLayer.appendChild(potEl);
+
+      // 2. Плашка «С днём рождения, Имя!» над партой
+      const label = document.createElement('div');
+      label.className = 'birthday-label';
+      label.style.left = cx + 'px';
+      label.style.top = (topY - 8) + 'px';
+      label.textContent = 'С днём рождения, ' + seat.name + '!';
+      birthdayLayer.appendChild(label);
+
+      // 3. Фейерверк над партой
+      const fw = document.createElement('div');
+      fw.className = 'fireworks';
+      fw.style.left = cx + 'px';
+      fw.style.top = topY + 'px';
+
+      // Искры
+      const sparkColors = ['#ffd700', '#ff8800', '#ff5577', '#aaddff', '#fff5b8'];
+      const sparkCount = 10;
+      for (let i = 0; i < sparkCount; i++) {
+        const angle = (Math.PI * 2 * i) / sparkCount + Math.random() * 0.3;
+        const dist = 40 + Math.random() * 50;
+        const dx = Math.cos(angle) * dist;
+        const dy = Math.sin(angle) * dist - 20;
+        const s = document.createElement('div');
+        s.className = 'spark';
+        s.style.setProperty('--dx', dx + 'px');
+        s.style.setProperty('--dy', dy + 'px');
+        s.style.background = sparkColors[i % sparkColors.length];
+        s.style.boxShadow = '0 0 6px ' + sparkColors[i % sparkColors.length];
+        s.style.animationDelay = (Math.random() * 0.6) + 's';
+        s.style.animationDuration = (1.6 + Math.random() * 0.6) + 's';
+        fw.appendChild(s);
+      }
+
+      // Звёздочки
+      for (let i = 0; i < 5; i++) {
+        const angle = (Math.PI * 2 * i) / 5 + Math.random() * 0.4;
+        const dist = 50 + Math.random() * 40;
+        const dx = Math.cos(angle) * dist;
+        const dy = Math.sin(angle) * dist - 30;
+        const st = document.createElement('div');
+        st.className = 'star';
+        st.style.setProperty('--dx', dx + 'px');
+        st.style.setProperty('--dy', dy + 'px');
+        st.style.animationDelay = (Math.random() * 1.2) + 's';
+        st.style.animationDuration = (2.0 + Math.random() * 0.8) + 's';
+        fw.appendChild(st);
+      }
+
+      birthdayLayer.appendChild(fw);
+    });
+  });
+}
+
 // ====== СТАРТ ======
+fillBdaySelects();
 setBoardDate();
 initDrag();
 initialLoad();
