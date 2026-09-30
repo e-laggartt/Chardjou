@@ -654,3 +654,46 @@ function renderBirthdayForCurrentRow() {
 fillBdaySelects();
 setBoardDate();
 initialLoad();
+// ====== ПРИВЕТСТВЕННЫЙ ОВЕРЛЕЙ ======
+const welcomeOverlay = document.getElementById('welcomeOverlay');
+const welcomeEnterBtn = document.getElementById('welcomeEnterBtn');
+const aboutBtn = document.getElementById('aboutBtn');
+const WELCOME_KEY = 'chardjouWelcomeShown_v1';
+
+function showWelcome() {
+  welcomeOverlay.classList.add('show');
+}
+function hideWelcome() {
+  welcomeOverlay.classList.remove('show');
+}
+function markWelcomeShown() {
+  try { localStorage.setItem(WELCOME_KEY, '1'); } catch (e) {}
+}
+function wasWelcomeShown() {
+  try { return localStorage.getItem(WELCOME_KEY) === '1'; } catch (e) { return false; }
+}
+
+// При первом заходе — показать
+if (!wasWelcomeShown()) {
+  // Небольшая задержка, чтобы страница успела отрисоваться
+  setTimeout(showWelcome, 400);
+}
+
+// Кнопка «Войти в класс»
+welcomeEnterBtn.addEventListener('click', () => {
+  hideWelcome();
+  markWelcomeShown();
+});
+
+// Кнопка «О проекте» — показать заново
+aboutBtn.addEventListener('click', () => {
+  showWelcome();
+});
+
+// Клик по тёмному фону вне книги — закрыть
+welcomeOverlay.addEventListener('click', (e) => {
+  if (e.target === welcomeOverlay) {
+    hideWelcome();
+    markWelcomeShown();
+  }
+});
