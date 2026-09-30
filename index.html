@@ -71,7 +71,6 @@ header p {
 }
 .seats-counter b { color: #4a6b3a; font-style: normal; }
 
-/* Строка поиска */
 .search-bar {
   display: flex;
   justify-content: center;
@@ -92,7 +91,6 @@ header p {
 .search-bar input:focus { border-color: #6a5a3a; }
 .search-bar input::placeholder { color: #a89878; font-style: italic; }
 
-/* Общая строка с периодами и кнопкой списка */
 .controls-row {
   display: flex;
   justify-content: center;
@@ -144,7 +142,9 @@ header p {
 }
 .list-btn:hover { background: #c9bda0; }
 
+/* Обёртка класса — она же контейнер для горшков */
 .classroom-wrap {
+  position: relative;
   background: #d9cfb8;
   border: 3px solid #8b7548;
   border-radius: 6px;
@@ -210,11 +210,19 @@ header p {
   pointer-events: none;
 }
 
+/* ====== ГОРШКИ — общий слой поверх класса ====== */
+.flower-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+.flower-layer .flower-station { pointer-events: auto; }
+
 .flower-station {
   position: absolute;
   width: 40px;
   height: 40px;
-  z-index: 6;
   cursor: grab;
   touch-action: none;
   user-select: none;
@@ -464,7 +472,6 @@ header p {
   background: linear-gradient(180deg, #e4ebd2 0%, #ccd7b5 100%);
 }
 
-/* Подсветка при поиске */
 .seat.dimmed { opacity: 0.25; }
 .seat.highlighted {
   background: linear-gradient(180deg, #fceea0 0%, #f4dd70 100%) !important;
@@ -500,7 +507,6 @@ header p {
   50% { opacity: 1; }
 }
 
-/* ====== TOOLTIP ====== */
 .tooltip {
   position: fixed;
   background: #2a1e10;
@@ -530,7 +536,6 @@ header p {
   font-size: 13px;
 }
 
-/* ====== МОДАЛКИ ====== */
 .modal-overlay {
   display: none;
   position: fixed; inset: 0;
@@ -610,7 +615,6 @@ header p {
   text-align: center;
 }
 
-/* Список одноклассников */
 .list-modal .modal-sub { margin-bottom: 12px; }
 .list-content {
   max-height: 60vh;
@@ -814,6 +818,20 @@ header p {
 
   .modal { padding: 16px; }
   .modal h2 { font-size: 26px; }
+
+  /* На мобиле горшки меньше и позиционируются относительно контейнера */
+  .flower-station {
+    width: 32px;
+    height: 32px;
+  }
+  .flower-station .pot {
+    width: 22px; height: 17px;
+  }
+  .flower-station .stem { height: 12px; bottom: 17px; }
+  .flower-station .chamomile { bottom: 27px; width: 14px; height: 14px; }
+  .flower-station .leaf { width: 8px; height: 4px; }
+  .flower-station .leaf.l1 { bottom: 19px; left: 10px; }
+  .flower-station .leaf.l2 { bottom: 21px; left: 17px; }
 }
 </style>
 </head>
@@ -844,7 +862,8 @@ header p {
     <button class="row-btn" data-row="3">3 ряд</button>
   </div>
 
-  <div class="classroom-wrap">
+  <!-- Обёртка класса — в ней и класс, и слой горшков -->
+  <div class="classroom-wrap" id="classroomWrap">
     <div class="classroom-scale" id="classroomScale">
       <div class="classroom" id="classroom">
         <div class="wall-top"></div>
@@ -860,43 +879,6 @@ header p {
         <div class="teacher-desk">Учительский<br>стол</div>
 
         <div class="seats-grid" id="seatsGrid"></div>
-
-        <div class="flower-station" data-pot="0">
-          <div class="stem"></div>
-          <div class="leaf l1"></div>
-          <div class="leaf l2"></div>
-          <div class="chamomile">
-            <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
-            <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
-            <div class="center"></div>
-          </div>
-          <div class="pot"></div>
-        </div>
-
-        <div class="flower-station" data-pot="1">
-          <div class="stem"></div>
-          <div class="leaf l1"></div>
-          <div class="leaf l2"></div>
-          <div class="chamomile">
-            <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
-            <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
-            <div class="center"></div>
-          </div>
-          <div class="pot"></div>
-        </div>
-
-        <div class="flower-station" data-pot="2">
-          <div class="stem"></div>
-          <div class="leaf l1"></div>
-          <div class="leaf l2"></div>
-          <div class="chamomile">
-            <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
-            <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
-            <div class="center"></div>
-          </div>
-          <div class="pot"></div>
-        </div>
-
       </div>
     </div>
 
@@ -905,10 +887,48 @@ header p {
       <div class="mobile-teacher-desk">Учительский стол</div>
       <div class="mobile-seats" id="mobileSeats"></div>
     </div>
+
+    <!-- Слой горшков — общий для десктопа и мобилы -->
+    <div class="flower-layer" id="flowerLayer">
+      <div class="flower-station" data-pot="0">
+        <div class="stem"></div>
+        <div class="leaf l1"></div>
+        <div class="leaf l2"></div>
+        <div class="chamomile">
+          <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+          <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+          <div class="center"></div>
+        </div>
+        <div class="pot"></div>
+      </div>
+
+      <div class="flower-station" data-pot="1">
+        <div class="stem"></div>
+        <div class="leaf l1"></div>
+        <div class="leaf l2"></div>
+        <div class="chamomile">
+          <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+          <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+          <div class="center"></div>
+        </div>
+        <div class="pot"></div>
+      </div>
+
+      <div class="flower-station" data-pot="2">
+        <div class="stem"></div>
+        <div class="leaf l1"></div>
+        <div class="leaf l2"></div>
+        <div class="chamomile">
+          <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+          <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+          <div class="center"></div>
+        </div>
+        <div class="pot"></div>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- Модалка занять место -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <h2 id="modalTitle">Занять место</h2>
@@ -925,7 +945,6 @@ header p {
   </div>
 </div>
 
-<!-- Модалка список -->
 <div class="modal-overlay" id="listOverlay">
   <div class="modal list-modal">
     <h2 id="listTitle">Наш класс</h2>
@@ -937,7 +956,6 @@ header p {
   </div>
 </div>
 
-<!-- Tooltip -->
 <div class="tooltip" id="tooltip">
   <div class="tt-name" id="ttName"></div>
   <div class="tt-comment" id="ttComment"></div>
@@ -979,6 +997,7 @@ const btnCancel = document.getElementById('btnCancel');
 const modalError = document.getElementById('modalError');
 const classroom = document.getElementById('classroom');
 const classroomScale = document.getElementById('classroomScale');
+const classroomWrap = document.getElementById('classroomWrap');
 const toast = document.getElementById('toast');
 const seatsCounter = document.getElementById('seatsCounter');
 const boardDate = document.getElementById('boardDate');
@@ -1080,15 +1099,12 @@ function applySearchHighlight() {
     el.classList.remove('dimmed', 'highlighted');
   });
   if (!searchQuery) return;
-
-  let hasMatch = false;
   seats.forEach(el => {
     const nameEl = el.querySelector('.seat-name');
     if (!nameEl) { el.classList.add('dimmed'); return; }
     const text = (nameEl.textContent || '').toLowerCase();
     if (text.indexOf(searchQuery) >= 0) {
       el.classList.add('highlighted');
-      hasMatch = true;
     } else {
       el.classList.add('dimmed');
     }
@@ -1241,8 +1257,6 @@ function makeSeat(row, desk, side, seats) {
       nameEl.appendChild(line);
     });
     div.appendChild(nameEl);
-
-    // Tooltip (только для десктопа)
     if (!isMobile()) {
       div.addEventListener('mouseenter', (e) => showTooltip(e, seatData));
       div.addEventListener('mousemove', moveTooltip);
@@ -1407,7 +1421,6 @@ function openList() {
     return;
   }
 
-  // Сортировка по ряду, потом по парте, потом по стороне
   const sorted = seats.slice().sort((a, b) => {
     if (a.row !== b.row) return a.row - b.row;
     if (a.desk !== b.desk) return a.desk - b.desk;
@@ -1437,15 +1450,12 @@ function openList() {
       item.appendChild(cEl);
     }
 
-    // Клик — закрыть список и подсветить место
     item.addEventListener('click', () => {
       listOverlay.classList.remove('show');
       searchInput.value = s.name || '';
       searchQuery = (s.name || '').toLowerCase();
       applySearchHighlight();
-      // Прокрутить к партам
       if (isMobile()) {
-        // переключить на нужный ряд
         currentRow = String(s.row);
         document.querySelectorAll('.row-btn').forEach(b => {
           b.classList.toggle('active', b.dataset.row === currentRow);
@@ -1466,6 +1476,7 @@ function openList() {
 }
 
 // ====== ПЕРЕТАСКИВАНИЕ ГОРШКОВ ======
+// Горшки теперь в .flower-layer — координаты считаем от .classroom-wrap
 function applyPotsPositions() {
   const pots = document.querySelectorAll('.flower-station');
   pots.forEach((el, i) => {
@@ -1476,7 +1487,7 @@ function applyPotsPositions() {
   });
 }
 function initDrag() {
-  const classroomEl = document.getElementById('classroom');
+  const wrapEl = classroomWrap;
   const pots = document.querySelectorAll('.flower-station');
 
   let dragState = null;
@@ -1488,10 +1499,9 @@ function initDrag() {
   function onPointerDown(e) {
     const el = e.currentTarget;
     const index = parseInt(el.dataset.pot, 10);
-    const rect = classroomEl.getBoundingClientRect();
-    const scale = classroomEl.offsetWidth > 0 ? rect.width / classroomEl.offsetWidth : 1;
-    const localX = (e.clientX - rect.left) / scale;
-    const localY = (e.clientY - rect.top) / scale;
+    const rect = wrapEl.getBoundingClientRect();
+    const localX = e.clientX - rect.left;
+    const localY = e.clientY - rect.top;
     const px = potsPositions[index] && typeof potsPositions[index].x === 'number'
       ? potsPositions[index].x
       : (parseFloat(el.style.left) || 0);
@@ -1514,12 +1524,11 @@ function initDrag() {
   function onPointerMove(e) {
     if (!dragState) return;
     if (e.pointerId !== dragState.pointerId) return;
-    const rect = classroomEl.getBoundingClientRect();
-    const scale = classroomEl.offsetWidth > 0 ? rect.width / classroomEl.offsetWidth : 1;
-    let localX = (e.clientX - rect.left) / scale - dragState.offsetX;
-    let localY = (e.clientY - rect.top) / scale - dragState.offsetY;
-    const maxX = classroomEl.offsetWidth - 40;
-    const maxY = classroomEl.offsetHeight - 40;
+    const rect = wrapEl.getBoundingClientRect();
+    let localX = (e.clientX - rect.left) - dragState.offsetX;
+    let localY = (e.clientY - rect.top) - dragState.offsetY;
+    const maxX = wrapEl.offsetWidth - 40;
+    const maxY = wrapEl.offsetHeight - 40;
     localX = Math.max(0, Math.min(maxX, localX));
     localY = Math.max(0, Math.min(maxY, localY));
     potsPositions[dragState.index] = { x: localX, y: localY };
