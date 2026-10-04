@@ -6,19 +6,26 @@ const NAME_MAX_MOBILE = 18;
 const NAME_MIN_MOBILE = 12;
 const TOTAL_SEATS_PER_PERIOD = 30;
 
+// Ограничения зума
+const ZOOM_MIN = 0.5;
+const ZOOM_MAX = 4.0;
+const ZOOM_STEP = 0.25;
+
 const MONTHS_NOM = ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
 const MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 const DAYS_WEEK = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
 
 let currentPeriod = '5';
-let currentRow = '1';
 let allSeats = [];
 let editingSeat = null;
 let searchQuery = '';
-let birthdayAutoSwitched = false;
+
+// Зум
+let baseScale = 1;
+let userZoom = 1;
+let panX = 0, panY = 0;
 
 const grid = document.getElementById('seatsGrid');
-const mobileSeats = document.getElementById('mobileSeats');
 const overlay = document.getElementById('modalOverlay');
 const modalTitle = document.getElementById('modalTitle');
 const modalSub = document.getElementById('modalSub');
@@ -32,10 +39,10 @@ const modalError = document.getElementById('modalError');
 const classroom = document.getElementById('classroom');
 const classroomScale = document.getElementById('classroomScale');
 const classroomWrap = document.getElementById('classroomWrap');
+const classroomOuter = document.getElementById('classroomOuter');
 const toast = document.getElementById('toast');
 const seatsCounter = document.getElementById('seatsCounter');
 const boardDate = document.getElementById('boardDate');
-const mobileBoardDate = document.getElementById('mobileBoardDate');
 const searchInput = document.getElementById('searchInput');
 const birthdayBanner = document.getElementById('birthdayBanner');
 const birthdayLayer = document.getElementById('birthdayLayer');
@@ -69,7 +76,6 @@ function setBoardDate() {
     text = formatDate(today);
   }
   boardDate.textContent = text;
-  mobileBoardDate.textContent = text;
 }
 
 // ====== ЗАПОЛНЕНИЕ ВЫПАДАШЕК ======
@@ -102,43 +108,130 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 4000);
 }
 
-function fitClassroom() {
-  if (isMobile()) return;
+// ====== МАСШТАБИРОВАНИЕ И ЗУМ ======
+function computeBaseScale() {
   const availW = classroomScale.clientWidth - 8;
-  if (availW < 1040) {
-    const scale = availW / 1040;
-    classroom.style.transform = 'scale(' + scale + ')';
-    classroomScale.style.height = (classroom.offsetHeight * scale) + 'px';
-  } else {
-    classroom.style.transform = 'scale(1)';
-    classroomScale.style.height = 'auto';
-  }
+  const CLASS_W = 1040;
+  return availW < CLASS_W ? availW / CLASS_W : 1;
 }
+
+function clampPan() {
+  const wrapW = classroomWrap.clientWidth;
+  const wrapH = classroomWrap.clientHeight;
+  const totalScale = baseScale * userZoom;
+  const realW = classroom.offsetWidth * totalScale;
+  const realH = classroom.offsetHeight * totalScale;
+
+  const maxX = Math.max(0, realW - wrapW);
+  const maxY = Math.max(0, realH - wrapH);
+
+  panX = Math.min(0, Math.max(-maxX, panX));
+  panY = Math.min(0, Math.max(-maxY, panY));
+}
+
+function applyTransform() {
+  const total = baseScale * userZoom;
+  classroom.style.transform = 'translate(' + panX + 'px, ' + panY + 'px) scale(' + total + ')';
+  const realH = classroom.offsetHeight;
+  classroomScale.style.height = (realH * total) + 'px';
+}
+
+function fitClassroom() {
+  baseScale = computeBaseScale();
+  clampPan();
+  applyTransform();
+}
+
 window.addEventListener('resize', () => {
   fitClassroom();
   renderAll();
+  renderBirthdayForCurrentRow();
 });
 
+// ====== ЗУМ: КНОПКИ ======
+document.getElementById('zoomIn').addEventListener('click', () => {
+  userZoom = Math.min(ZOOM_MAX, userZoom + ZOOM_STEP);
+  clampPan();
+  applyTransform();
+});
+document.getElementById('zoomOut').addEventListener('click', () => {
+  userZoom = Math.max(ZOOM_MIN, userZoom - ZOOM_STEP);
+  clampPan();
+  applyTransform();
+});
+document.getElementById('zoomReset').addEventListener('click', () => {
+  userZoom = 1;
+  panX = 0; panY = 0;
+  applyTransform();
+});
+
+// ====== ЗУМ: PINCH-TO-ZOOM И ПАN ======
+(function initZoomGestures() {
+  const el = classroomOuter;
+  let pinchStartDist = 0;
+  let pinchStartZoom = 1;
+  let panStart = null;
+
+  function getDistance(t1, t2) {
+    const dx = t1.clientX - t2.clientX;
+    const dy = t1.clientY - t2.clientY;
+    return Math.hypot(dx, dy);
+  }
+
+  el.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      pinchStartDist = getDistance(e.touches[0], e.touches[1]);
+      pinchStartZoom = userZoom;
+      panStart = null;
+    } else if (e.touches.length === 1 && userZoom > 1.001) {
+      panStart = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+        px: panX,
+        py: panY
+      };
+    }
+  }, { passive: true });
+
+  el.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2) {
+      const dist = getDistance(e.touches[0], e.touches[1]);
+      if (pinchStartDist > 0) {
+        const factor = dist / pinchStartDist;
+        let newZoom = pinchStartZoom * factor;
+        newZoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, newZoom));
+        if (Math.abs(newZoom - userZoom) > 0.01) {
+          userZoom = newZoom;
+          clampPan();
+          applyTransform();
+          e.preventDefault();
+        }
+      }
+    } else if (e.touches.length === 1 && panStart && userZoom > 1.001) {
+      const dx = e.touches[0].clientX - panStart.x;
+      const dy = e.touches[0].clientY - panStart.y;
+      panX = panStart.px + dx;
+      panY = panStart.py + dy;
+      clampPan();
+      applyTransform();
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  el.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) pinchStartDist = 0;
+    if (e.touches.length < 1) panStart = null;
+  });
+})();
+
+// ====== КНОПКИ ПЕРИОДОВ ======
 document.querySelectorAll('.period-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentPeriod = btn.dataset.period;
-    birthdayAutoSwitched = false;
     renderAll();
     checkBirthdays();
-  });
-});
-
-document.querySelectorAll('.row-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.row-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentRow = btn.dataset.row;
-    renderMobile();
-    renderBirthdayForCurrentRow();
-    const m = document.getElementById('mobileSeats');
-    if (m) m.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 });
 
@@ -166,7 +259,6 @@ async function fetchAllSeats() {
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const data = await res.json();
   if (data && data.error) throw new Error(data.error);
-  // Отбрасываем служебные записи (если остались от старой версии)
   const arr = Array.isArray(data) ? data : [];
   return arr.filter(item => !(item && item.type === 'flowers'));
 }
@@ -180,7 +272,6 @@ async function pushAllSeats(seats) {
   if (data.result !== 'ok') throw new Error(data.message || 'Ошибка сохранения');
 }
 function buildPayload() {
-  // Никаких «цветов» в данных — только места
   return allSeats;
 }
 
@@ -239,7 +330,6 @@ async function deleteSeatOptimistic(seatData) {
 // ====== РЕНДЕР ======
 function renderAll() {
   renderGrid();
-  renderMobile();
   updateCounter();
   applySearchHighlight();
 }
@@ -258,18 +348,6 @@ function renderGrid() {
     grid.appendChild(rowDiv);
   }
   fitClassroom();
-  requestAnimationFrame(fitAllNames);
-}
-function renderMobile() {
-  mobileSeats.innerHTML = '';
-  const seats = currentSeats();
-  const row = parseInt(currentRow, 10);
-  for (let desk = 1; desk <= 5; desk++) {
-    const pairDiv = document.createElement('div');
-    pairDiv.className = 'mobile-desk-pair';
-    ['left', 'right'].forEach(side => pairDiv.appendChild(makeSeat(row, desk, side, seats)));
-    mobileSeats.appendChild(pairDiv);
-  }
   requestAnimationFrame(fitAllNames);
 }
 
@@ -372,8 +450,8 @@ function fitName(el) {
   const padL = parseFloat(cs.paddingLeft) || 0;
   const padR = parseFloat(cs.paddingRight) || 0;
   const availW = parent.clientWidth - padL - padR - 2;
-  const maxSize = isMobile() ? NAME_MAX_MOBILE : NAME_MAX_DESKTOP;
-  const minSize = isMobile() ? NAME_MIN_MOBILE : NAME_MIN_DESKTOP;
+  const maxSize = NAME_MAX_DESKTOP;
+  const minSize = NAME_MIN_DESKTOP;
   if (measureTextWidth(longest, maxSize) <= availW) { el.style.fontSize = maxSize + 'px'; return; }
   for (let size = maxSize - 1; size >= minSize; size--) {
     if (measureTextWidth(longest, size) <= availW) { el.style.fontSize = size + 'px'; return; }
@@ -504,19 +582,8 @@ function openList() {
       searchInput.value = s.name || '';
       searchQuery = (s.name || '').toLowerCase();
       applySearchHighlight();
-      if (isMobile()) {
-        currentRow = String(s.row);
-        document.querySelectorAll('.row-btn').forEach(b => {
-          b.classList.toggle('active', b.dataset.row === currentRow);
-        });
-        renderMobile();
-        renderBirthdayForCurrentRow();
-        const m = document.getElementById('mobileSeats');
-        if (m) m.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else {
-        const el = document.querySelector('.classroom-wrap');
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+      const el = document.querySelector('.classroom-outer');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
     listContent.appendChild(item);
   });
@@ -525,8 +592,7 @@ function openList() {
 
 // ====== ДЕНЬ РОЖДЕНИЯ ======
 function getSeatRect(row, desk, side) {
-  const root = isMobile() ? mobileSeats : grid;
-  const seatEl = root.querySelector('.seat[data-row="' + row + '"][data-desk="' + desk + '"][data-side="' + side + '"]');
+  const seatEl = grid.querySelector('.seat[data-row="' + row + '"][data-desk="' + desk + '"][data-side="' + side + '"]');
   if (!seatEl) return null;
   const wrapRect = classroomWrap.getBoundingClientRect();
   const r = seatEl.getBoundingClientRect();
@@ -557,18 +623,6 @@ function checkBirthdays() {
   }
   birthdayBanner.classList.add('show');
 
-  if (isMobile() && !birthdayAutoSwitched) {
-    birthdayAutoSwitched = true;
-    const targetRow = String(bdaySeats[0].row);
-    if (currentRow !== targetRow) {
-      currentRow = targetRow;
-      document.querySelectorAll('.row-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.row === currentRow);
-      });
-      renderMobile();
-    }
-  }
-
   renderBirthdayForCurrentRow();
 }
 
@@ -578,12 +632,8 @@ function renderBirthdayForCurrentRow() {
   const bdaySeats = seats.filter(isBirthdayToday);
   if (bdaySeats.length === 0) return;
 
-  const visibleBdaySeats = isMobile()
-    ? bdaySeats.filter(s => String(s.row) === currentRow)
-    : bdaySeats;
-
   requestAnimationFrame(() => {
-    visibleBdaySeats.forEach(seat => {
+    bdaySeats.forEach(seat => {
       const rect = getSeatRect(seat.row, seat.desk, seat.side);
       if (!rect) return;
       const cx = rect.left + rect.width / 2;
@@ -650,22 +700,14 @@ function renderBirthdayForCurrentRow() {
   });
 }
 
-// ====== СТАРТ ======
-fillBdaySelects();
-setBoardDate();
-initialLoad();
 // ====== ПРИВЕТСТВЕННЫЙ ОВЕРЛЕЙ ======
 const welcomeOverlay = document.getElementById('welcomeOverlay');
 const welcomeEnterBtn = document.getElementById('welcomeEnterBtn');
 const aboutBtn = document.getElementById('aboutBtn');
 const WELCOME_KEY = 'chardjouWelcomeShown_v1';
 
-function showWelcome() {
-  welcomeOverlay.classList.add('show');
-}
-function hideWelcome() {
-  welcomeOverlay.classList.remove('show');
-}
+function showWelcome() { welcomeOverlay.classList.add('show'); }
+function hideWelcome() { welcomeOverlay.classList.remove('show'); }
 function markWelcomeShown() {
   try { localStorage.setItem(WELCOME_KEY, '1'); } catch (e) {}
 }
@@ -673,27 +715,27 @@ function wasWelcomeShown() {
   try { return localStorage.getItem(WELCOME_KEY) === '1'; } catch (e) { return false; }
 }
 
-// При первом заходе — показать
 if (!wasWelcomeShown()) {
-  // Небольшая задержка, чтобы страница успела отрисоваться
   setTimeout(showWelcome, 400);
 }
 
-// Кнопка «Войти в класс»
 welcomeEnterBtn.addEventListener('click', () => {
   hideWelcome();
   markWelcomeShown();
 });
 
-// Кнопка «О проекте» — показать заново
 aboutBtn.addEventListener('click', () => {
   showWelcome();
 });
 
-// Клик по тёмному фону вне книги — закрыть
 welcomeOverlay.addEventListener('click', (e) => {
   if (e.target === welcomeOverlay) {
     hideWelcome();
     markWelcomeShown();
   }
 });
+
+// ====== СТАРТ ======
+fillBdaySelects();
+setBoardDate();
+initialLoad();
