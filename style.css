@@ -6,7 +6,8 @@ body {
   font-family: Georgia, 'Times New Roman', serif;
   background: #cabfa5;
   color: #3d2f1e;
-  padding: 12px;position: relative;
+  padding: 12px;
+  position: relative;
   min-height: 100vh;
 }
 body::before {
@@ -153,6 +154,14 @@ header p {
 }
 .list-btn:hover { background: #c9bda0; }
 
+/* ====== КОНТЕЙНЕР КЛАССА С ЗУМОМ ====== */
+.classroom-outer {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  touch-action: none; /* чтобы браузер не отбирал жесты у нашей логики */
+}
+
 .classroom-wrap {
   position: relative;
   background: #d9cfb8;
@@ -175,7 +184,7 @@ header p {
   padding: 20px 20px 25px 20px;
   box-shadow: inset 0 0 60px rgba(139,117,72,0.25);
   transform-origin: top left;
-  transition: transform 0.2s;
+  transition: transform 0.15s;
 }
 
 .wall-top, .wall-left, .wall-right {
@@ -232,24 +241,9 @@ header p {
   position: absolute;
   width: 40px;
   height: 40px;
-  cursor: grab;
-  touch-action: none;
   user-select: none;
-  transition: filter 0.15s;
 }
-.flower-station:hover { filter: brightness(1.05); }
-.flower-station.dragging {
-  cursor: grabbing;
-  filter: drop-shadow(0 6px 10px rgba(0,0,0,0.4));
-  z-index: 100;
-  transition: none;
-}
-.flower-station[data-pot="0"] { top: 210px; left: 38px; }
-.flower-station[data-pot="1"] { top: 420px; left: 38px; }
-.flower-station[data-pot="2"] { top: 650px; left: 38px; }
-
 .flower-station.birthday-pot {
-  cursor: default;
   pointer-events: none;
   z-index: 30;
 }
@@ -536,7 +530,6 @@ header p {
 .seat:hover {
   background: linear-gradient(180deg, #faf3dd 0%, #e8ddc0 100%);
   box-shadow: inset 0 0 12px rgba(74,107,58,0.35), 0 4px 10px rgba(0,0,0,0.25);
-  transform: translateY(-2px);
 }
 .seat.taken {
   background: linear-gradient(180deg, #d8dfc5 0%, #c0cba8 100%);
@@ -788,35 +781,40 @@ header p {
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
 
-.row-switcher {
-  display: none;
-  justify-content: center;
+/* ====== КНОПКИ ЗУМА ====== */
+.zoom-controls {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
   gap: 6px;
-  margin: 12px 0 8px;
-  flex-wrap: wrap;
+  z-index: 50;
+  pointer-events: auto;
 }
-.row-btn {
-  padding: 12px 16px;
-  font-family: Georgia, serif;
-  font-size: 15px;
-  font-weight: bold;
-  background: #d9cfb8;
+.zoom-btn {
+  width: 40px;
+  height: 40px;
+  background: #efe6cf;
   border: 2px solid #8b7548;
-  border-radius: 4px;
+  border-radius: 6px;
   color: #4a3520;
+  font-family: Georgia, serif;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1;
   cursor: pointer;
-  flex: 1;
-  min-width: 90px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+  transition: 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
 }
-.row-btn.active {
-  background: #5e7a4a;
-  color: #efe6cf;
-  border-color: #3a4a35;
-}
+.zoom-btn:hover { background: #e8dfc5; }
+.zoom-btn:active { transform: scale(0.95); }
 
-.mobile-classroom { display: none; }
-
+/* ====== МОБИЛЬНАЯ ВЕРСИЯ ====== */
 @media (max-width: 700px) {
   body { padding: 8px; overflow-y: auto; }
   header h1 { font-size: 36px; }
@@ -826,132 +824,20 @@ header p {
   .search-bar { max-width: 100%; margin-top: 10px; }
   .period-btn { padding: 10px 12px; font-size: 14px; }
   .list-btn { padding: 10px 12px; font-size: 13px; }
-  .row-switcher { display: flex; }
-  .classroom-scale { display: none; }
+
   .classroom-wrap {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    overflow: visible;
-    height: auto;
-  }
-  .mobile-classroom { display: block; }
-
-  .mobile-blackboard {
-    background: #3a4a35;
-    background-image:
-      radial-gradient(ellipse at 30% 40%, rgba(255,255,255,0.06) 0%, transparent 55%),
-      radial-gradient(ellipse at 70% 70%, rgba(0,0,0,0.2) 0%, transparent 60%);
-    border: 6px solid #7a5e34;
-    border-radius: 3px;
-    padding: 18px 8px;
-    margin: 0 0 14px;
-    box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 3px 6px rgba(0,0,0,0.25);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(240,235,220,0.85);
-    text-align: center;
-    position: relative;
-  }
-  .mobile-blackboard .line1 {
-    font-family: 'Caveat', 'Courier New', cursive;
-    font-weight: 700;
-    font-size: 30px;
-    letter-spacing: 1px;
-  }
-  .mobile-blackboard::after {
-    content: '';
-    position: absolute;
-    bottom: 4px; right: 10px;
-    width: 18px; height: 3px;
-    background: #e8ddc0;
-    border-radius: 1px;
-    box-shadow: 10px 0 0 #e8ddc0;
-    opacity: 0.7;
-  }
-  .mobile-blackboard::before {
-    content: '';
-    position: absolute;
-    bottom: 3px; left: 10px;
-    width: 22px; height: 10px;
-    background: linear-gradient(180deg, #c8b898 0%, #a89878 100%);
-    border-radius: 2px;
-    box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), inset 0 -1px 2px rgba(0,0,0,0.25);
-    opacity: 0.85;
-  }
-
-  .mobile-teacher-desk {
-    width: 160px;
-    height: 58px;
-    margin: 0 auto 20px;
-    background: linear-gradient(180deg, #b8935f 0%, #8b6238 100%);
-    border: 2px solid #5e3f1e;
-    border-radius: 3px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.35);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255,255,255,0.9);
-    font-size: 12px;
-    letter-spacing: 1px;
-    position: relative;
-  }
-  .mobile-teacher-desk::after {
-    content: '';
-    position: absolute;
-    top: 6px; left: 10px;
-    width: 20px; height: 14px;
-    background: rgba(240,235,220,0.9);
-    border-radius: 1px;
-    transform: rotate(-4deg);
-  }
-
-  .mobile-seats { display: flex; flex-direction: column; gap: 22px; padding: 0 2px; }
-  .mobile-desk-pair {
-    position: relative;
-    display: flex;
-    gap: 6px;
-    background: #8b6238;
-    border: 2px solid #5e3f1e;
-    border-radius: 3px;
     padding: 6px;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.4);
   }
-  .mobile-desk-pair .seat {
-    width: 50%;
-    height: 100px;
-    flex: 1;
-    font-size: 14px;
+  .zoom-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
   }
-  .mobile-desk-pair .seat::before {
-    bottom: -11px;
-    width: 60%;
-    height: 9px;
-  }
-  .mobile-desk-pair .seat .plus { font-size: 30px; }
-  .mobile-desk-pair .seat .free { font-size: 14px; }
-
   .modal { padding: 16px; }
   .modal h2 { font-size: 26px; }
-
-  .flower-station {
-    width: 32px;
-    height: 32px;
-  }
-  .flower-station .pot {
-    width: 22px; height: 17px;
-  }
-  .flower-station .stem { height: 12px; bottom: 17px; }
-  .flower-station .chamomile { bottom: 27px; width: 14px; height: 14px; }
-  .flower-station .leaf { width: 8px; height: 4px; }
-  .flower-station .leaf.l1 { bottom: 19px; left: 10px; }
-  .flower-station .leaf.l2 { bottom: 21px; left: 17px; }
-
-  .birthday-label { font-size: 14px; padding: 4px 8px; }
 }
-/* ====== ПРИВЕТСТВЕННЫЙ ОВЕРЛЕЙ (КНИЖНАЯ СТРАНИЦА) ====== */
+
+/* ====== ПРИВЕТСТВЕННЫЙ ОВЕРЛЕЙ ====== */
 .welcome-overlay {
   display: none;
   position: fixed;
@@ -991,7 +877,6 @@ header p {
   100% { transform: scale(1) translateY(0); opacity: 1; }
 }
 
-/* Виньетки по углам — растительные веточки */
 .welcome-vignette {
   position: absolute;
   width: 80px;
@@ -1007,57 +892,18 @@ header p {
   background: radial-gradient(circle at 30% 30%, #6b8a4a 0%, #4a6b3a 70%, transparent 90%);
   box-shadow: 0 0 3px rgba(74, 107, 58, 0.4);
 }
-.welcome-vignette.tv-tl {
-  top: 12px; left: 12px;
-  transform: rotate(0deg);
-}
-.welcome-vignette.tv-tl::before {
-  width: 18px; height: 9px; top: 6px; left: 4px;
-  transform: rotate(-25deg);
-}
-.welcome-vignette.tv-tl::after {
-  width: 14px; height: 7px; top: 18px; left: 18px;
-  transform: rotate(35deg);
-}
-
-.welcome-vignette.tv-tr {
-  top: 12px; right: 12px;
-  transform: scaleX(-1);
-}
-.welcome-vignette.tv-tr::before {
-  width: 18px; height: 9px; top: 6px; left: 4px;
-  transform: rotate(-25deg);
-}
-.welcome-vignette.tv-tr::after {
-  width: 14px; height: 7px; top: 18px; left: 18px;
-  transform: rotate(35deg);
-}
-
-.welcome-vignette.tv-bl {
-  bottom: 12px; left: 12px;
-  transform: scaleY(-1);
-}
-.welcome-vignette.tv-bl::before {
-  width: 18px; height: 9px; top: 6px; left: 4px;
-  transform: rotate(-25deg);
-}
-.welcome-vignette.tv-bl::after {
-  width: 14px; height: 7px; top: 18px; left: 18px;
-  transform: rotate(35deg);
-}
-
-.welcome-vignette.tv-br {
-  bottom: 12px; right: 12px;
-  transform: scale(-1, -1);
-}
-.welcome-vignette.tv-br::before {
-  width: 18px; height: 9px; top: 6px; left: 4px;
-  transform: rotate(-25deg);
-}
-.welcome-vignette.tv-br::after {
-  width: 14px; height: 7px; top: 18px; left: 18px;
-  transform: rotate(35deg);
-}
+.welcome-vignette.tv-tl { top: 12px; left: 12px; }
+.welcome-vignette.tv-tl::before { width: 18px; height: 9px; top: 6px; left: 4px; transform: rotate(-25deg); }
+.welcome-vignette.tv-tl::after { width: 14px; height: 7px; top: 18px; left: 18px; transform: rotate(35deg); }
+.welcome-vignette.tv-tr { top: 12px; right: 12px; transform: scaleX(-1); }
+.welcome-vignette.tv-tr::before { width: 18px; height: 9px; top: 6px; left: 4px; transform: rotate(-25deg); }
+.welcome-vignette.tv-tr::after { width: 14px; height: 7px; top: 18px; left: 18px; transform: rotate(35deg); }
+.welcome-vignette.tv-bl { bottom: 12px; left: 12px; transform: scaleY(-1); }
+.welcome-vignette.tv-bl::before { width: 18px; height: 9px; top: 6px; left: 4px; transform: rotate(-25deg); }
+.welcome-vignette.tv-bl::after { width: 14px; height: 7px; top: 18px; left: 18px; transform: rotate(35deg); }
+.welcome-vignette.tv-br { bottom: 12px; right: 12px; transform: scale(-1, -1); }
+.welcome-vignette.tv-br::before { width: 18px; height: 9px; top: 6px; left: 4px; transform: rotate(-25deg); }
+.welcome-vignette.tv-br::after { width: 14px; height: 7px; top: 18px; left: 18px; transform: rotate(35deg); }
 
 .welcome-content {
   text-align: center;
@@ -1121,9 +967,6 @@ header p {
 .welcome-btn:hover {
   background: linear-gradient(180deg, #e8dfc5 0%, #d9cfb8 100%);
   transform: translateY(-1px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 6px 14px rgba(0, 0, 0, 0.2);
 }
 .welcome-btn:active { transform: translateY(0); }
 
@@ -1137,9 +980,7 @@ header p {
 }
 
 @media (max-width: 700px) {
-  .welcome-book {
-    padding: 32px 22px 28px;
-  }
+  .welcome-book { padding: 32px 22px 28px; }
   .welcome-title { font-size: 38px; }
   .welcome-sub { font-size: 13px; margin-bottom: 20px; }
   .welcome-text { font-size: 15px; margin-bottom: 22px; }
