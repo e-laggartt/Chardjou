@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 <title>Чарджоу, школа №20</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,39 +35,36 @@
     <button class="list-btn" id="listBtn">Список</button>
   </div>
 
-  <div class="row-switcher" id="rowSwitcher">
-    <button class="row-btn active" data-row="1">1 ряд</button>
-    <button class="row-btn" data-row="2">2 ряд</button>
-    <button class="row-btn" data-row="3">3 ряд</button>
-  </div>
+  <div class="classroom-outer" id="classroomOuter">
+    <div class="classroom-wrap" id="classroomWrap">
+      <div class="classroom-scale" id="classroomScale">
+        <div class="classroom" id="classroom">
+          <div class="wall-top"></div>
+          <div class="wall-left"></div>
+          <div class="wall-right"></div>
 
-  <div class="classroom-wrap" id="classroomWrap">
-    <div class="classroom-scale" id="classroomScale">
-      <div class="classroom" id="classroom">
-        <div class="wall-top"></div>
-        <div class="wall-left"></div>
-        <div class="wall-right"></div>
+          <div class="window-full"></div>
 
-        <div class="window-full"></div>
+          <div class="blackboard">
+            <div class="line1" id="boardDate"></div>
+          </div>
 
-        <div class="blackboard">
-          <div class="line1" id="boardDate"></div>
+          <div class="teacher-desk">Учительский<br>стол</div>
+
+          <div class="seats-grid" id="seatsGrid"></div>
         </div>
+      </div>
 
-        <div class="teacher-desk">Учительский<br>стол</div>
-
-        <div class="seats-grid" id="seatsGrid"></div>
+      <div class="flower-layer" id="flowerLayer">
+        <div id="birthdayLayer"></div>
       </div>
     </div>
 
-    <div class="mobile-classroom" id="mobileClassroom">
-      <div class="mobile-blackboard"><div class="line1" id="mobileBoardDate"></div></div>
-      <div class="mobile-teacher-desk">Учительский стол</div>
-      <div class="mobile-seats" id="mobileSeats"></div>
-    </div>
-
-    <div class="flower-layer" id="flowerLayer">
-      <div id="birthdayLayer"></div>
+    <!-- Кнопки зума -->
+    <div class="zoom-controls">
+      <button class="zoom-btn" id="zoomIn" title="Приблизить">+</button>
+      <button class="zoom-btn" id="zoomOut" title="Отдалить">−</button>
+      <button class="zoom-btn" id="zoomReset" title="Сбросить">⟲</button>
     </div>
   </div>
 </div>
