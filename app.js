@@ -15,6 +15,38 @@ const MONTHS_NOM = ['январь','февраль','март','апрель','�
 const MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 const DAYS_WEEK = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
 
+// ====== ПРАЗДНИКИ ======
+// day — число, month — месяц 0..11 (9 = октябрь), 0 = январь
+// boardText — что писать на доске
+// bannerText — что писать в баннере сверху
+// bouquet — рисовать ли букет на учительском столе
+const HOLIDAYS = [
+  {
+    day: 1, month: 8, // 1 сентября
+    boardText: 'С Днём знаний!',
+    bannerText: '📚 С Днём знаний — начало учебного года!',
+    bouquet: true
+  },
+  {
+    day: 5, month: 9, // 5 октября
+    boardText: 'С днём учителя!',
+    bannerText: '🌷 Сегодня День учителя — спасибо нашим учителям!',
+    bouquet: true
+  },
+  {
+    day: 25, month: 0, // 25 января
+    boardText: 'С Татьяниным днём!',
+    bannerText: '🎓 День студенчества — вспомним студенческие годы!',
+    bouquet: true
+  },
+  {
+    day: 19, month: 4, // 19 мая
+    boardText: 'С Днём пионерии!',
+    bannerText: '🔥 День пионерии — вспомним красные галстуки!',
+    bouquet: true
+  }
+];
+
 let currentPeriod = '5';
 let allSeats = [];
 let editingSeat = null;
@@ -61,6 +93,14 @@ const ttBday = document.getElementById('ttBday');
 
 const isMobile = () => window.matchMedia('(max-width: 700px)').matches;
 
+// ====== ОПРЕДЕЛЕНИЕ ПРАЗДНИКА ======
+function getTodayHoliday() {
+  const today = new Date();
+  const day = today.getDate();
+  const month = today.getMonth();
+  return HOLIDAYS.find(h => h.day === day && h.month === month) || null;
+}
+
 // ====== ДАТА НА ДОСКЕ ======
 function formatDate(d) {
   return d.getDate() + ' ' + MONTHS_GEN[d.getMonth()] + ', ' + DAYS_WEEK[d.getDay()];
@@ -69,8 +109,11 @@ function setBoardDate() {
   const today = new Date();
   const day = today.getDate();
   const month = today.getMonth();
+  const holiday = getTodayHoliday();
   let text;
-  if (day === 3 && month === 8) {
+  if (holiday) {
+    text = holiday.boardText;
+  } else if (day === 3 && month === 8) {
     text = '3 сентября, среда';
   } else {
     text = formatDate(today);
@@ -146,6 +189,8 @@ window.addEventListener('resize', () => {
   fitClassroom();
   renderAll();
   renderBirthdayForCurrentRow();
+  const holiday = getTodayHoliday();
+  if (holiday && holiday.bouquet) renderTeacherBouquet();
 });
 
 // ====== ЗУМ: КНОПКИ ======
@@ -590,7 +635,7 @@ function openList() {
   listOverlay.classList.add('show');
 }
 
-// ====== ДЕНЬ РОЖДЕНИЯ ======
+// ====== ПРАЗДНИКИ И ДНИ РОЖДЕНИЯ ======
 function getSeatRect(row, desk, side) {
   const seatEl = grid.querySelector('.seat[data-row="' + row + '"][data-desk="' + desk + '"][data-side="' + side + '"]');
   if (!seatEl) return null;
@@ -611,25 +656,48 @@ function clearBirthdayLayer() {
 
 function checkBirthdays() {
   clearBirthdayLayer();
+
+  const holiday = getTodayHoliday();
+
+  if (holiday) {
+    birthdayBanner.textContent = holiday.bannerText;
+    birthdayBanner.classList.add('show');
+    if (holiday.bouquet) renderTeacherBouquet();
+  }
+
   const seats = currentSeats();
   const bdaySeats = seats.filter(isBirthdayToday);
-  if (bdaySeats.length === 0) return;
+  if (bdaySeats.length > 0) {
+    let bdayText;
+    if (bdaySeats.length === 1) {
+      bdayText = '🎂 Сегодня день рождения у ' + bdaySeats[0].name + '!';
+    } else {
+      const names = bdaySeats.map(s => s.name).join(', ');
+      bdayText = '🎂 Сегодня день рождения: ' + names + '!';
+    }
+    if (birthdayBanner.textContent) {
+      birthdayBanner.textContent += ' · ' + bdayText;
+    } else {
+      birthdayBanner.textContent = bdayText;
+    }
+    birthdayBanner.classList.add('show');
+    renderBirthdayForCurrentRow();
 
-  if (bdaySeats.length === 1) {
-    birthdayBanner.textContent = '🎂 Сегодня день рождения у ' + bdaySeats[0].name + '! 🎉';
-  } else {
-    const names = bdaySeats.map(s => s.name).join(', ');
-    birthdayBanner.textContent = '🎂 Сегодня день рождения: ' + names + '! 🎉';
+    // Вернуть букет, если был — renderBirthdayForCurrentRow его стирает
+    if (holiday && holiday.bouquet) renderTeacherBouquet();
   }
-  birthdayBanner.classList.add('show');
-
-  renderBirthdayForCurrentRow();
 }
 
+// Рисует праздничные элементы для именинников (не трогает учительский букет)
 function renderBirthdayForCurrentRow() {
-  birthdayLayer.innerHTML = '';
   const seats = currentSeats();
   const bdaySeats = seats.filter(isBirthdayToday);
+
+  // Удаляем прошлые элементы именинников, но не букет
+  birthdayLayer.querySelectorAll('.birthday-pot, .birthday-label, .fireworks').forEach(el => {
+    if (!el.classList.contains('teacher-bouquet')) el.remove();
+  });
+
   if (bdaySeats.length === 0) return;
 
   requestAnimationFrame(() => {
@@ -697,6 +765,75 @@ function renderBirthdayForCurrentRow() {
       }
       birthdayLayer.appendChild(fw);
     });
+  });
+}
+
+// Букет цветов на учительском столе — в праздники
+function renderTeacherBouquet() {
+  const teacherDesk = document.querySelector('.teacher-desk');
+  if (!teacherDesk) return;
+
+  // Сотрём прежний букет, если был
+  birthdayLayer.querySelectorAll('.teacher-bouquet').forEach(el => el.remove());
+
+  const wrapRect = classroomWrap.getBoundingClientRect();
+  const r = teacherDesk.getBoundingClientRect();
+  const cx = (r.left - wrapRect.left) + r.width / 2;
+  const topY = (r.top - wrapRect.top);
+
+  requestAnimationFrame(() => {
+    const bouquetColors = ['#e85a7a', '#f4a02c', '#e8c040', '#c858a0', '#e85a7a'];
+    const total = 5;
+    for (let i = 0; i < total; i++) {
+      const angleOffset = (i - (total - 1) / 2) * 14;
+      const heightOffset = Math.abs(i - (total - 1) / 2) * 2;
+
+      const flower = document.createElement('div');
+      flower.className = 'flower-station birthday-pot teacher-bouquet';
+      flower.style.left = (cx - 20 + angleOffset) + 'px';
+      flower.style.top = (topY - 32 + heightOffset) + 'px';
+      flower.style.bottom = 'auto';
+      flower.style.transform = 'scale(0.9)';
+      flower.style.zIndex = '22';
+      flower.innerHTML =
+        '<div class="stem" style="height:20px"></div>' +
+        '<div class="leaf l1"></div>' +
+        '<div class="leaf l2"></div>' +
+        '<div class="chamomile" style="bottom:38px">' +
+          '<div class="petal" style="background:' + bouquetColors[i] + '"></div>' +
+          '<div class="petal" style="background:' + bouquetColors[i] + '"></div>' +
+          '<div class="petal" style="background:' + bouquetColors[i] + '"></div>' +
+          '<div class="petal" style="background:' + bouquetColors[i] + '"></div>' +
+          '<div class="petal" style="background:' + bouquetColors[i] + '"></div>' +
+          '<div class="petal" style="background:' + bouquetColors[i] + '"></div>' +
+          '<div class="petal" style="background:' + bouquetColors[i] + '"></div>' +
+          '<div class="petal" style="background:' + bouquetColors[i] + '"></div>' +
+          '<div class="center"></div>' +
+        '</div>' +
+        '<div class="pot" style="width:18px;height:14px;background:linear-gradient(180deg, #8a6f4a 0%, #5e3f1e 100%)"></div>';
+      birthdayLayer.appendChild(flower);
+    }
+
+    // Фейерверк над столом
+    const fw = document.createElement('div');
+    fw.className = 'fireworks teacher-bouquet';
+    fw.style.left = cx + 'px';
+    fw.style.top = (topY - 20) + 'px';
+    const sparkColors = ['#ffd700', '#ff8800', '#ff5577', '#aaddff', '#fff5b8'];
+    for (let i = 0; i < 8; i++) {
+      const angle = (Math.PI * 2 * i) / 8 + Math.random() * 0.3;
+      const dist = 30 + Math.random() * 40;
+      const s = document.createElement('div');
+      s.className = 'spark';
+      s.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+      s.style.setProperty('--dy', (Math.sin(angle) * dist - 15) + 'px');
+      s.style.background = sparkColors[i % sparkColors.length];
+      s.style.boxShadow = '0 0 6px ' + sparkColors[i % sparkColors.length];
+      s.style.animationDelay = (Math.random() * 0.6) + 's';
+      s.style.animationDuration = (1.6 + Math.random() * 0.6) + 's';
+      fw.appendChild(s);
+    }
+    birthdayLayer.appendChild(fw);
   });
 }
 
