@@ -21,10 +21,6 @@
 
   <div class="birthday-banner" id="birthdayBanner"></div>
 
-  <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Найти одноклассника по имени..." autocomplete="off">
-  </div>
-
   <div class="controls-row">
     <div class="periods">
       <button class="period-btn active" data-period="5">5 класс</button>
@@ -32,7 +28,6 @@
       <button class="period-btn" data-period="11">11 класс</button>
     </div>
     <button class="list-btn" id="aboutBtn">О проекте</button>
-    <button class="list-btn" id="listBtn">Список</button>
   </div>
 
   <div class="classroom-outer" id="classroomOuter">
@@ -58,13 +53,6 @@
       <div class="flower-layer" id="flowerLayer">
         <div id="birthdayLayer"></div>
       </div>
-    </div>
-
-    <!-- Кнопки зума -->
-    <div class="zoom-controls">
-      <button class="zoom-btn" id="zoomIn" title="Приблизить">+</button>
-      <button class="zoom-btn" id="zoomOut" title="Отдалить">−</button>
-      <button class="zoom-btn" id="zoomReset" title="Сбросить">⟲</button>
     </div>
   </div>
 </div>
@@ -94,18 +82,6 @@
   </div>
 </div>
 
-<!-- Модалка список -->
-<div class="modal-overlay" id="listOverlay">
-  <div class="modal list-modal">
-    <h2 id="listTitle">Наш класс</h2>
-    <p class="modal-sub" id="listSub"></p>
-    <div class="list-content" id="listContent"></div>
-    <div class="modal-actions">
-      <button class="btn-cancel" id="listClose">Закрыть</button>
-    </div>
-  </div>
-</div>
-
 <!-- ПРИВЕТСТВЕННЫЙ ОВЕРЛЕЙ -->
 <div class="welcome-overlay" id="welcomeOverlay">
   <div class="welcome-book">
@@ -123,6 +99,7 @@
         <p>Это виртуальный класс нашей школы. Три периода — 5, 9 и 11 класс. Можно сесть за ту парту, где ты сидел. Или за ту, где всегда мечтал.</p>
         <p>Нажми на свободное место, напиши своё имя — и ты в классе.</p>
         <p>Если хочешь, укажи дату рождения — в твой день рождения на парте появится цветок и фейерверк.</p>
+        <p>На телефоне класс можно приблизить двумя пальцами — раздвинь их, чтобы увеличить, и сдвинь, чтобы уменьшить.</p>
         <p>Кто уже сел — видно по именам. Ищи себя среди знакомых.</p>
       </div>
 
