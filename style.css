@@ -64,7 +64,7 @@ header p {
   display: none;
   text-align: center;
   margin: 10px auto 0;
-  max-width: 600px;
+  max-width: 700px;
   padding: 10px 18px;
   background: linear-gradient(180deg, #fceea0 0%, #f4dd70 100%);
   border: 2px solid #b89840;
@@ -82,26 +82,6 @@ header p {
   0%, 100% { box-shadow: 0 4px 12px rgba(232,200,64,0.5); }
   50% { box-shadow: 0 4px 24px rgba(232,200,64,0.95); }
 }
-
-.search-bar {
-  display: flex;
-  justify-content: center;
-  margin: 12px auto 0;
-  max-width: 360px;
-}
-.search-bar input {
-  width: 100%;
-  padding: 10px 14px;
-  font-family: Georgia, serif;
-  font-size: 15px;
-  border: 2px solid #a89468;
-  border-radius: 4px;
-  background: #faf3dd;
-  color: #3d2f1e;
-  outline: none;
-}
-.search-bar input:focus { border-color: #6a5a3a; }
-.search-bar input::placeholder { color: #a89878; font-style: italic; }
 
 .controls-row {
   display: flex;
@@ -159,7 +139,7 @@ header p {
   position: relative;
   overflow: hidden;
   border-radius: 8px;
-  touch-action: none; /* чтобы браузер не отбирал жесты у нашей логики */
+  touch-action: none;
 }
 
 .classroom-wrap {
@@ -491,7 +471,7 @@ header p {
   border: 1px solid #8b7548;
   border-radius: 3px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s, background 0.2s, opacity 0.25s;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
   position: relative;
   display: flex;
   align-items: center;
@@ -547,14 +527,6 @@ header p {
 @keyframes seatGlow {
   0%, 100% { box-shadow: 0 0 0 3px #e8c840, 0 0 24px rgba(232,200,64,0.75), 0 6px 14px rgba(0,0,0,0.4); }
   50% { box-shadow: 0 0 0 3px #f4d55a, 0 0 32px rgba(232,200,64,1), 0 6px 14px rgba(0,0,0,0.4); }
-}
-
-.seat.dimmed { opacity: 0.25; }
-.seat.highlighted {
-  background: linear-gradient(180deg, #fceea0 0%, #f4dd70 100%) !important;
-  border-color: #b89840 !important;
-  box-shadow: 0 0 0 3px #e8c840, 0 0 20px rgba(232,200,64,0.7) !important;
-  z-index: 10;
 }
 
 .seat-name {
@@ -718,51 +690,6 @@ header p {
   text-align: center;
 }
 
-.list-modal .modal-sub { margin-bottom: 12px; }
-.list-content {
-  max-height: 60vh;
-  overflow-y: auto;
-  margin-top: 8px;
-}
-.list-item {
-  padding: 10px 12px;
-  border-bottom: 1px solid #d8c8a8;
-  cursor: pointer;
-  transition: background 0.15s;
-  border-radius: 4px;
-}
-.list-item:hover { background: #e8dcc0; }
-.list-item:last-child { border-bottom: none; }
-.list-item .li-name {
-  font-family: 'PT Serif', Georgia, serif;
-  font-weight: 700;
-  color: #3d2f1e;
-  font-size: 15px;
-}
-.list-item .li-place {
-  font-size: 13px;
-  color: #7a6a4a;
-  font-style: italic;
-  margin-top: 2px;
-}
-.list-item .li-comment {
-  font-size: 13px;
-  color: #5a4a30;
-  margin-top: 3px;
-}
-.list-item .li-bday {
-  font-size: 13px;
-  color: #b8860b;
-  margin-top: 3px;
-  font-weight: bold;
-}
-.list-empty {
-  text-align: center;
-  padding: 30px 10px;
-  color: #8a7a5a;
-  font-style: italic;
-}
-
 .toast {
   position: fixed;
   left: 50%; bottom: 20px;
@@ -781,58 +708,38 @@ header p {
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
 
-/* ====== КНОПКИ ЗУМА ====== */
-.zoom-controls {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  z-index: 50;
-  pointer-events: auto;
-}
-.zoom-btn {
-  width: 40px;
-  height: 40px;
-  background: #efe6cf;
-  border: 2px solid #8b7548;
-  border-radius: 6px;
-  color: #4a3520;
-  font-family: Georgia, serif;
-  font-size: 20px;
-  font-weight: bold;
-  line-height: 1;
-  cursor: pointer;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
-  transition: 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-}
-.zoom-btn:hover { background: #e8dfc5; }
-.zoom-btn:active { transform: scale(0.95); }
-
 /* ====== МОБИЛЬНАЯ ВЕРСИЯ ====== */
 @media (max-width: 700px) {
   body { padding: 8px; overflow-y: auto; }
   header h1 { font-size: 36px; }
   header p { font-size: 12px; }
   .seats-counter { font-size: 13px; }
-  .birthday-banner { font-size: 22px; }
-  .search-bar { max-width: 100%; margin-top: 10px; }
-  .period-btn { padding: 10px 12px; font-size: 14px; }
-  .list-btn { padding: 10px 12px; font-size: 13px; }
+  .birthday-banner { font-size: 20px; padding: 8px 12px; }
 
-  .classroom-wrap {
-    padding: 6px;
+  /* Кнопки: 5/9/11 + О проекте — в одну строку */
+  .controls-row {
+    flex-wrap: nowrap;
+    gap: 6px;
   }
-  .zoom-btn {
-    width: 44px;
-    height: 44px;
-    font-size: 22px;
+  .periods {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
+    gap: 4px;
   }
+  .period-btn {
+    padding: 8px 6px;
+    font-size: 12px;
+    min-width: 0;
+  }
+  .list-btn {
+    padding: 8px 10px;
+    font-size: 12px;
+    flex: 0 0 auto;
+  }
+
+  .classroom-wrap { padding: 6px; }
+
   .modal { padding: 16px; }
   .modal h2 { font-size: 26px; }
 }
