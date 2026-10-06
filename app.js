@@ -19,10 +19,10 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 
 const DESK_W = 110;
 const DESK_H = 55;
-const DESK_GAP = 22;              // запас: спинка стула (8) + зазор от неё до парты ниже
+const DESK_GAP = 22;
 const ROWS_X = [138, 406, 674];
 const START_Y = 280;
-const ROW_STEP = DESK_H + DESK_GAP; // 77
+const ROW_STEP = DESK_H + DESK_GAP;
 
 let currentPeriod = '5';
 let allSeats = [];
@@ -45,6 +45,11 @@ const inputBdayMonth = document.getElementById('inputBdayMonth');
 const btnSave = document.getElementById('btnSave');
 const btnCancel = document.getElementById('btnCancel');
 const modalError = document.getElementById('modalError');
+
+const tooltip = document.getElementById('tooltip');
+const ttName = document.getElementById('ttName');
+const ttComment = document.getElementById('ttComment');
+const ttBday = document.getElementById('ttBday');
 
 // ====== ПРАЗДНИК ======
 function getTodayHoliday() {
@@ -204,7 +209,7 @@ function renderSeats() {
     for (let desk = 1; desk <= 5; desk++) {
       const yBase = START_Y + (desk - 1) * ROW_STEP;
 
-      // Двойная парта — рамка
+      // Рамка двойной парты
       const pairBg = document.createElementNS(SVG_NS, 'rect');
       pairBg.setAttribute('x', xBase - 4);
       pairBg.setAttribute('y', yBase - 4);
@@ -217,7 +222,7 @@ function renderSeats() {
       pairBg.setAttribute('filter', 'drop-shadow(0 3px 4px rgba(0,0,0,0.3))');
       seatsLayer.appendChild(pairBg);
 
-      // Столешница — один прямоугольник
+      // Столешница
       const top = document.createElementNS(SVG_NS, 'rect');
       top.setAttribute('x', xBase);
       top.setAttribute('y', yBase);
@@ -229,7 +234,7 @@ function renderSeats() {
       top.setAttribute('stroke-width', '1');
       seatsLayer.appendChild(top);
 
-      // Блик сверху
+      // Блик
       const shine = document.createElementNS(SVG_NS, 'rect');
       shine.setAttribute('x', xBase + 4);
       shine.setAttribute('y', yBase + 2);
@@ -240,7 +245,7 @@ function renderSeats() {
       shine.setAttribute('pointer-events', 'none');
       seatsLayer.appendChild(shine);
 
-      // Разделитель посередине парты
+      // Разделитель посередине
       const divider = document.createElementNS(SVG_NS, 'line');
       divider.setAttribute('x1', xBase + DESK_W);
       divider.setAttribute('y1', yBase + 4);
@@ -252,7 +257,7 @@ function renderSeats() {
       divider.setAttribute('pointer-events', 'none');
       seatsLayer.appendChild(divider);
 
-      // Две спинки стульев — под каждой половиной парты
+      // Две спинки стульев — под каждой половиной
       const chairW = DESK_W * 0.55;
       const chairH = 8;
       const chairY = yBase + DESK_H + 2;
@@ -272,7 +277,7 @@ function renderSeats() {
         seatsLayer.appendChild(chair);
       });
 
-      // Левая и правая половины (для клика и подсветки)
+      // Половины парты (клик, подсветка, имя)
       ['left', 'right'].forEach((side, idx) => {
         const seatX = xBase + idx * DESK_W;
         const seatG = makeSeat(row, desk, side, seatX, yBase, seats);
@@ -359,6 +364,7 @@ function makeSeat(row, desk, side, x, y, seats) {
     g.appendChild(free);
   }
 
+  // Прозрачная зона клика
   const clickZone = document.createElementNS(SVG_NS, 'rect');
   clickZone.setAttribute('width', DESK_W);
   clickZone.setAttribute('height', DESK_H);
@@ -366,15 +372,46 @@ function makeSeat(row, desk, side, x, y, seats) {
   clickZone.style.cursor = 'pointer';
   g.appendChild(clickZone);
 
-  g.addEventListener('click', () => openSeat(row, desk, side, seatData));
-
+  // Tooltip при наведении — только для занятых
   if (seatData) {
-    const title = document.createElementNS(SVG_NS, 'title');
-    title.textContent = seatData.name + (seatData.comment ? ' — ' + seatData.comment : '');
-    g.appendChild(title);
+    g.addEventListener('mouseenter', (e) => showTooltip(e, seatData));
+    g.addEventListener('mousemove', moveTooltip);
+    g.addEventListener('mouseleave', hideTooltip);
   }
+
+  g.addEventListener('click', () => openSeat(row, desk, side, seatData));
   return g;
 }
+
+// ====== TOOLTIP ======
+function showTooltip(e, seatData) {
+  ttName.textContent = seatData.name || '';
+  if (seatData.comment) {
+    ttComment.textContent = seatData.comment;
+    ttComment.style.display = '';
+  } else {
+    ttComment.style.display = 'none';
+  }
+  if (seatData.birthday) {
+    const parts = seatData.birthday.split('.');
+    ttBday.textContent = '🎂 ' + parseInt(parts[0], 10) + ' ' + MONTHS_GEN[parseInt(parts[1], 10) - 1];
+    ttBday.style.display = '';
+  } else {
+    ttBday.style.display = 'none';
+  }
+  tooltip.classList.add('show');
+  moveTooltip(e);
+}
+function moveTooltip(e) {
+  const pad = 14;
+  let x = e.clientX + pad, y = e.clientY + pad;
+  const rect = tooltip.getBoundingClientRect();
+  if (x + rect.width > window.innerWidth - 10) x = e.clientX - rect.width - pad;
+  if (y + rect.height > window.innerHeight - 10) y = e.clientY - rect.height - pad;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top = y + 'px';
+}
+function hideTooltip() { tooltip.classList.remove('show'); }
 
 function pickFontSize(words, maxWidth) {
   const longest = words.reduce((a, b) => a.length >= b.length ? a : b, '');
