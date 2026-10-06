@@ -13,7 +13,6 @@ const MONTHS_GEN = ['января','февраля','марта','апреля',
 const DAYS_WEEK = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
 
 // ====== ПРАЗДНИКИ ======
-// day — число, month — месяц 0..11 (0 = январь, 9 = октябрь)
 const HOLIDAYS = [
   {
     day: 1, month: 8,
@@ -176,7 +175,7 @@ window.addEventListener('resize', () => {
   if (holiday && holiday.bouquet) renderTeacherBouquet();
 });
 
-// ====== PINCH-TO-ZOOM И ПАN (только пальцами) ======
+// ====== ЖЕСТЫ: pinch-to-zoom + горизонтальная панорама ======
 (function initZoomGestures() {
   const el = classroomOuter;
   let pinchStartDist = 0;
@@ -199,7 +198,10 @@ window.addEventListener('resize', () => {
         x: e.touches[0].clientX,
         y: e.touches[0].clientY,
         px: panX,
-        py: panY
+        py: panY,
+        // Определяем направление жеста по первому значимому сдвигу
+        decided: false,
+        horizontal: false
       };
     }
   }, { passive: true });
@@ -218,9 +220,24 @@ window.addEventListener('resize', () => {
           e.preventDefault();
         }
       }
-    } else if (e.touches.length === 1 && panStart && userZoom > 1.001) {
+      return;
+    }
+
+    if (e.touches.length === 1 && panStart && userZoom > 1.001) {
       const dx = e.touches[0].clientX - panStart.x;
       const dy = e.touches[0].clientY - panStart.y;
+
+      // Определяем направление, как только накопилось 8px
+      if (!panStart.decided) {
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+        panStart.decided = true;
+        panStart.horizontal = Math.abs(dx) > Math.abs(dy);
+      }
+
+      // Вертикальный жест — не мешаем странице скроллиться
+      if (!panStart.horizontal) return;
+
+      // Горизонтальный — таскаем схему
       panX = panStart.px + dx;
       panY = panStart.py + dy;
       clampPan();
@@ -576,7 +593,6 @@ function checkBirthdays() {
   }
 }
 
-// Рисует праздничные элементы для именинников (не трогает учительский букет)
 function renderBirthdayForCurrentRow() {
   const seats = currentSeats();
   const bdaySeats = seats.filter(isBirthdayToday);
@@ -652,7 +668,6 @@ function renderBirthdayForCurrentRow() {
   });
 }
 
-// Букет цветов на учительском столе — в праздники
 function renderTeacherBouquet() {
   const teacherDesk = document.querySelector('.teacher-desk');
   if (!teacherDesk) return;
