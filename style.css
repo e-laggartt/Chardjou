@@ -134,12 +134,14 @@ header p {
 }
 .list-btn:hover { background: #c9bda0; }
 
-/* ====== КОНТЕЙНЕР КЛАССА С ЗУМОМ ====== */
+/* ====== КОНТЕЙНЕР КЛАССА С ЗУМОМ ======
+   touch-action: pan-y — разрешаем нативный вертикальный скролл страницы.
+   Горизонталь обрабатываем сами в JS (панорама увеличенной схемы). */
 .classroom-outer {
   position: relative;
   overflow: hidden;
   border-radius: 8px;
-  touch-action: none;
+  touch-action: pan-y;
 }
 
 .classroom-wrap {
@@ -716,7 +718,6 @@ header p {
   .seats-counter { font-size: 13px; }
   .birthday-banner { font-size: 20px; padding: 8px 12px; }
 
-  /* Кнопки: 5/9/11 + О проекте — в одну строку */
   .controls-row {
     flex-wrap: nowrap;
     gap: 6px;
