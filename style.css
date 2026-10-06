@@ -134,464 +134,75 @@ header p {
 }
 .list-btn:hover { background: #c9bda0; }
 
-/* ====== КОНТЕЙНЕР КЛАССА С ЗУМОМ ======
-   touch-action: pan-y — разрешаем нативный вертикальный скролл страницы.
-   Горизонталь обрабатываем сами в JS (панорама увеличенной схемы). */
+/* ====== SVG-СЦЕНА КЛАССА ====== */
 .classroom-outer {
-  position: relative;
-  overflow: hidden;
   border-radius: 8px;
-  touch-action: pan-y;
-}
-
-.classroom-wrap {
-  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
   background: #d9cfb8;
-  border: 3px solid #8b7548;
-  border-radius: 6px;
-  padding: 8px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2), inset 0 0 40px rgba(139,117,72,0.2);
-  overflow: hidden;
 }
-.classroom-scale { width: 100%; overflow: hidden; position: relative; }
 
-.classroom {
-  position: relative;
-  width: 1040px;
-  min-width: 1040px;
-  margin: 0 auto;
+#scene {
+  display: block;
+  width: 100%;
+  height: auto;
   background: #e8ddc0;
-  background-image: linear-gradient(180deg, #e8ddc0 0%, #ddd0b0 100%);
-  border-radius: 4px;
-  padding: 20px 20px 25px 20px;
-  box-shadow: inset 0 0 60px rgba(139,117,72,0.25);
-  transform-origin: top left;
-  transition: transform 0.15s;
 }
 
-.wall-top, .wall-left, .wall-right {
-  position: absolute;
-  background: linear-gradient(180deg, #c9b88a, #a89468);
-}
-.wall-top { top: 0; left: 0; right: 0; height: 12px; border-radius: 4px 4px 0 0; }
-.wall-left { top: 0; bottom: 0; left: 0; width: 12px; }
-.wall-right { top: 0; bottom: 0; right: 0; width: 12px; }
+/* Парты — кликабельные */
+#seatsLayer .seat-group { cursor: pointer; }
+#seatsLayer .seat-group .desk-top { transition: filter 0.15s; }
+#seatsLayer .seat-group:hover .desk-top { filter: brightness(1.08); }
 
-.window-full {
-  position: absolute;
-  left: 18px;
-  top: 60px;
-  bottom: 40px;
-  width: 15px;
-  background: #6b4a25;
-  border: 2px solid #4a3018;
-  border-radius: 2px;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.4), 0 3px 8px rgba(0,0,0,0.3);
-  overflow: hidden;
+/* Пульсация плюсика */
+@keyframes plusPulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
 }
-.window-full::before {
-  content: '';
-  position: absolute;
-  inset: 2px;
-  background: linear-gradient(180deg, #d8e8f0 0%, #a0c0dc 40%, #88b0cc 100%);
-  box-shadow: inset 0 0 12px rgba(255,255,255,0.4);
-}
-.window-full::after {
-  content: '';
-  position: absolute;
-  inset: 2px;
-  background-image:
-    linear-gradient(180deg,
-      transparent 0, transparent 12%, #6b4a25 12%, #6b4a25 14%, transparent 14%,
-      transparent 28%, #6b4a25 28%, #6b4a25 30%, transparent 30%,
-      transparent 44%, #6b4a25 44%, #6b4a25 46%, transparent 46%,
-      transparent 60%, #6b4a25 60%, #6b4a25 62%, transparent 62%,
-      transparent 76%, #6b4a25 76%, #6b4a25 78%, transparent 78%,
-      transparent 92%, #6b4a25 92%, #6b4a25 94%, transparent 94%, transparent 100%);
+#seatsLayer .plus-sign {
+  animation: plusPulse 2.4s ease-in-out infinite;
   pointer-events: none;
 }
 
-.flower-layer {
-  position: absolute;
-  inset: 0;
+/* Fade-in для имени */
+@keyframes nameFadeIn {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+#seatsLayer .seat-name {
+  animation: nameFadeIn 0.4s ease-out;
   pointer-events: none;
-  z-index: 20;
-}
-.flower-layer .flower-station { pointer-events: auto; }
-
-.flower-station {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  user-select: none;
-}
-.flower-station.birthday-pot {
-  pointer-events: none;
-  z-index: 30;
-}
-.flower-station.birthday-pot .chamomile .center {
-  box-shadow: 0 0 8px #ffd700, 0 0 16px #ffaa00;
 }
 
-.flower-station .pot {
-  position: absolute;
-  bottom: 0; left: 50%;
-  transform: translateX(-50%);
-  width: 26px; height: 20px;
-  background: linear-gradient(180deg, #c06040 0%, #8a3a20 100%);
-  border: 1.5px solid #5e2510;
-  border-radius: 2px 2px 6px 6px;
-  box-shadow: inset 0 2px 4px rgba(255,255,255,0.25), inset 0 -2px 4px rgba(0,0,0,0.3), 0 3px 5px rgba(0,0,0,0.3);
-  pointer-events: none;
+/* Подсветка именинника */
+@keyframes seatGlow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(232,200,64,0.7)); }
+  50% { filter: drop-shadow(0 0 10px rgba(232,200,64,1)); }
 }
-.flower-station .pot::before {
-  content: '';
-  position: absolute;
-  top: -4px; left: -2px; right: -2px;
-  height: 6px;
-  background: #a04028;
-  border: 1.5px solid #5e2510;
-  border-radius: 2px;
-}
-.flower-station .stem {
-  position: absolute;
-  bottom: 20px; left: 50%;
-  transform: translateX(-50%);
-  width: 2px; height: 14px;
-  background: #4a6b3a;
-  pointer-events: none;
-}
-.flower-station .leaf {
-  position: absolute;
-  width: 9px; height: 5px;
-  background: #5e8a4a;
-  border-radius: 50% 0 50% 0;
-  pointer-events: none;
-}
-.flower-station .leaf.l1 { bottom: 22px; left: 12px; transform: rotate(-25deg); }
-.flower-station .leaf.l2 { bottom: 24px; left: 20px; transform: rotate(25deg) scaleX(-1); }
-
-.flower-station .chamomile {
-  position: absolute;
-  bottom: 32px; left: 50%;
-  transform: translateX(-50%);
-  width: 16px; height: 16px;
-  pointer-events: none;
-}
-.flower-station .chamomile .center {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 5px; height: 5px;
-  background: #e8c040;
-  border-radius: 50%;
-  box-shadow: 0 0 2px rgba(0,0,0,0.3);
-  z-index: 2;
-}
-.flower-station .chamomile .petal {
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 4px; height: 7px;
-  background: #f8f4e8;
-  border-radius: 50%;
-  transform-origin: 50% 100%;
-  box-shadow: 0 0 1px rgba(0,0,0,0.2);
-}
-.flower-station .chamomile .petal:nth-child(1) { transform: translate(-50%, -100%) rotate(0deg); }
-.flower-station .chamomile .petal:nth-child(2) { transform: translate(-50%, -100%) rotate(45deg); }
-.flower-station .chamomile .petal:nth-child(3) { transform: translate(-50%, -100%) rotate(90deg); }
-.flower-station .chamomile .petal:nth-child(4) { transform: translate(-50%, -100%) rotate(135deg); }
-.flower-station .chamomile .petal:nth-child(5) { transform: translate(-50%, -100%) rotate(180deg); }
-.flower-station .chamomile .petal:nth-child(6) { transform: translate(-50%, -100%) rotate(225deg); }
-.flower-station .chamomile .petal:nth-child(7) { transform: translate(-50%, -100%) rotate(270deg); }
-.flower-station .chamomile .petal:nth-child(8) { transform: translate(-50%, -100%) rotate(315deg); }
-
-.birthday-label {
-  position: absolute;
-  transform: translate(-50%, -100%);
-  background: linear-gradient(180deg, #fceea0 0%, #f4dd70 100%);
-  border: 2px solid #b89840;
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-family: 'Caveat', Georgia, cursive;
-  font-weight: 700;
-  font-size: 18px;
-  color: #4a3520;
-  white-space: nowrap;
-  z-index: 25;
-  box-shadow: 0 4px 12px rgba(232,200,64,0.6);
-  animation: labelPop 0.5s ease-out;
-  pointer-events: none;
-}
-@keyframes labelPop {
-  0% { transform: translate(-50%, -100%) scale(0.5); opacity: 0; }
-  70% { transform: translate(-50%, -100%) scale(1.08); opacity: 1; }
-  100% { transform: translate(-50%, -100%) scale(1); opacity: 1; }
+#seatsLayer .seat-birthday {
+  animation: seatGlow 2s ease-in-out infinite;
 }
 
-.fireworks {
-  position: absolute;
-  width: 0; height: 0;
-  pointer-events: none;
-  z-index: 24;
-}
-.fireworks .spark {
-  position: absolute;
-  width: 4px; height: 4px;
-  border-radius: 50%;
-  background: #ffd700;
-  box-shadow: 0 0 6px #ffd700, 0 0 12px #ff8800;
-  top: 0; left: 0;
-  animation: sparkFly 1.8s ease-out infinite;
-}
+/* Фейерверк */
 @keyframes sparkFly {
   0% { transform: translate(0, 0) scale(1); opacity: 1; }
   100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
 }
-.fireworks .star {
-  position: absolute;
-  width: 0; height: 0;
-  border-left: 3px solid transparent;
-  border-right: 3px solid transparent;
-  border-bottom: 6px solid #fff5b8;
-  filter: drop-shadow(0 0 3px #ffd700);
-  animation: starFly 2.4s ease-out infinite;
+#birthdayLayer .spark {
+  animation: sparkFly 1.8s ease-out infinite;
 }
 @keyframes starFly {
   0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
   100% { transform: translate(var(--dx), var(--dy)) rotate(360deg) scale(0.3); opacity: 0; }
 }
-
-.blackboard {
-  background: #3a4a35;
-  background-image:
-    radial-gradient(ellipse at 25% 35%, rgba(255,255,255,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 75% 65%, rgba(0,0,0,0.2) 0%, transparent 60%);
-  border: 8px solid #7a5e34;
-  border-radius: 3px;
-  height: 110px;
-  margin: 30px 40px 0 40px;
-  box-shadow: inset 0 0 50px rgba(0,0,0,0.55), 0 4px 8px rgba(0,0,0,0.25);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: rgba(240,235,220,0.85);
-  position: relative;
-  text-align: center;
-  line-height: 1.4;
-}
-.blackboard .line1 {
-  font-family: 'Caveat', 'Courier New', cursive;
-  font-weight: 700;
-  font-size: 36px;
-  letter-spacing: 2px;
-  text-shadow: 0 0 8px rgba(255,255,255,0.08);
-}
-.blackboard::after {
-  content: '';
-  position: absolute;
-  bottom: 8px; right: 20px;
-  width: 26px; height: 5px;
-  background: #e8ddc0;
-  border-radius: 2px;
-  box-shadow: 14px 0 0 #e8ddc0, 28px 0 0 #e8ddc0;
-  opacity: 0.7;
-}
-.blackboard::before {
-  content: '';
-  position: absolute;
-  bottom: 6px; left: 20px;
-  width: 30px; height: 14px;
-  background: linear-gradient(180deg, #c8b898 0%, #a89878 100%);
-  border-radius: 3px 3px 4px 4px;
-  box-shadow:
-    inset 0 2px 3px rgba(255,255,255,0.4),
-    inset 0 -2px 4px rgba(0,0,0,0.25),
-    0 1px 2px rgba(0,0,0,0.3);
-  opacity: 0.85;
-  transform: rotate(-2deg);
+#birthdayLayer .star {
+  animation: starFly 2.4s ease-out infinite;
 }
 
-.teacher-desk {
-  width: 200px;
-  height: 72px;
-  margin: 22px auto 30px;
-  background: linear-gradient(180deg, #b8935f 0%, #8b6238 100%);
-  border: 2px solid #5e3f1e;
-  border-radius: 3px;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255,255,255,0.9);
-  font-size: 12px;
-  text-align: center;
-  padding: 6px;
-  letter-spacing: 1px;
-  position: relative;
-}
-.teacher-desk::after {
-  content: '';
-  position: absolute;
-  top: 8px; left: 14px;
-  width: 26px; height: 18px;
-  background: rgba(240,235,220,0.9);
-  border-radius: 1px;
-  box-shadow: 3px 3px 0 rgba(0,0,0,0.15);
-  transform: rotate(-4deg);
-}
+/* Тряпка на столе */
+#birthdayLayer .cloth { pointer-events: none; }
 
-.seats-grid {
-  display: flex;
-  gap: 24px;
-  justify-content: center;
-  margin-top: 14px;
-  padding: 0 90px 0 110px;
-}
-.seat-row {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-}
-
-.desk-pair {
-  position: relative;
-  display: flex;
-  gap: 4px;
-  background: #8b6238;
-  border: 2px solid #5e3f1e;
-  border-radius: 3px;
-  padding: 4px;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
-}
-
-.seat {
-  width: 94px;
-  height: 76px;
-  background: linear-gradient(180deg, #efe6cf 0%, #ddd0b0 100%);
-  border: 1px solid #8b7548;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: visible;
-  padding: 4px;
-  font-size: 12px;
-  color: #3d2f1e;
-  text-align: center;
-}
-.seat::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 6px;
-  right: 6px;
-  height: 8px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 100%);
-  border-radius: 3px 3px 0 0;
-  pointer-events: none;
-}
-.seat::before {
-  content: '';
-  position: absolute;
-  bottom: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 52px;
-  height: 10px;
-  background: linear-gradient(180deg, #a88868, #7a5a38);
-  border: 1px solid #5e3f1e;
-  border-radius: 0 0 3px 3px;
-  box-shadow: 0 2px 3px rgba(0,0,0,0.25);
-  z-index: 2;
-}
-.seat:hover {
-  background: linear-gradient(180deg, #faf3dd 0%, #e8ddc0 100%);
-  box-shadow: inset 0 0 12px rgba(74,107,58,0.35), 0 4px 10px rgba(0,0,0,0.25);
-}
-.seat.taken {
-  background: linear-gradient(180deg, #d8dfc5 0%, #c0cba8 100%);
-  border-color: #5e7a4a;
-}
-.seat.taken:hover {
-  background: linear-gradient(180deg, #e4ebd2 0%, #ccd7b5 100%);
-}
-.seat.birthday {
-  background: linear-gradient(180deg, #fdf3c8 0%, #f4e090 100%);
-  border-color: #b89840;
-  box-shadow: 0 0 0 3px #e8c840, 0 0 24px rgba(232,200,64,0.75), 0 6px 14px rgba(0,0,0,0.4);
-  animation: seatGlow 2s ease-in-out infinite;
-}
-@keyframes seatGlow {
-  0%, 100% { box-shadow: 0 0 0 3px #e8c840, 0 0 24px rgba(232,200,64,0.75), 0 6px 14px rgba(0,0,0,0.4); }
-  50% { box-shadow: 0 0 0 3px #f4d55a, 0 0 32px rgba(232,200,64,1), 0 6px 14px rgba(0,0,0,0.4); }
-}
-
-.seat-name {
-  font-family: 'PT Serif', Georgia, serif;
-  font-weight: 700;
-  line-height: 1.15;
-  text-align: center;
-  width: 100%;
-  overflow: hidden;
-  animation: nameFadeIn 0.4s ease-out;
-}
-@keyframes nameFadeIn {
-  from { opacity: 0; transform: translateY(3px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.seat .free { font-size: 13px; color: #a89468; font-style: italic; letter-spacing: 0.5px; }
-.seat .plus {
-  font-size: 26px;
-  color: #b89868;
-  line-height: 1;
-  margin-bottom: 1px;
-  animation: plusPulse 2.4s ease-in-out infinite;
-}
-@keyframes plusPulse {
-  0%, 100% { opacity: 0.55; }
-  50% { opacity: 1; }
-}
-
-.tooltip {
-  position: fixed;
-  background: #2a1e10;
-  color: #f0e4c8;
-  padding: 10px 14px;
-  border-radius: 6px;
-  font-family: Georgia, serif;
-  font-size: 14px;
-  max-width: 260px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-  pointer-events: none;
-  z-index: 15000;
-  opacity: 0;
-  transition: opacity 0.15s;
-  line-height: 1.35;
-}
-.tooltip.show { opacity: 1; }
-.tooltip .tt-name {
-  font-weight: bold;
-  color: #fff;
-  font-size: 15px;
-  margin-bottom: 2px;
-}
-.tooltip .tt-comment {
-  color: #d0c0a0;
-  font-style: italic;
-  font-size: 13px;
-}
-.tooltip .tt-bday {
-  color: #ffd700;
-  font-size: 13px;
-  margin-top: 3px;
-}
-
+/* ====== МОДАЛКА ====== */
 .modal-overlay {
   display: none;
   position: fixed; inset: 0;
@@ -738,8 +349,6 @@ header p {
     font-size: 12px;
     flex: 0 0 auto;
   }
-
-  .classroom-wrap { padding: 6px; }
 
   .modal { padding: 16px; }
   .modal h2 { font-size: 26px; }
