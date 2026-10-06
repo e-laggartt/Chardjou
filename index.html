@@ -37,10 +37,6 @@
           <stop offset="0%" stop-color="#3a4a35"/>
           <stop offset="100%" stop-color="#263a22"/>
         </linearGradient>
-        <linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#e8ddc0"/>
-          <stop offset="100%" stop-color="#ddd0b0"/>
-        </linearGradient>
         <linearGradient id="deskWoodGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="#efe6cf"/>
           <stop offset="100%" stop-color="#ddd0b0"/>
@@ -63,10 +59,10 @@
         </radialGradient>
       </defs>
 
-      <!-- Фон класса (стена + пол) -->
-      <rect x="0" y="0" width="1040" height="700" fill="url(#wallGrad)"/>
+      <!-- Плоский фон класса, без градиента -->
+      <rect x="0" y="0" width="1040" height="700" fill="#e8ddc0"/>
 
-      <!-- Левая стена с окном -->
+      <!-- Стены по краям -->
       <rect x="0" y="0" width="12" height="700" fill="#a89468"/>
       <rect x="1028" y="0" width="12" height="700" fill="#a89468"/>
       <rect x="0" y="0" width="1040" height="12" fill="#a89468"/>
@@ -75,7 +71,6 @@
       <g id="window">
         <rect x="22" y="60" width="18" height="600" fill="#6b4a25" stroke="#4a3018" stroke-width="2" rx="2"/>
         <rect x="26" y="64" width="10" height="592" fill="#d8e8f0"/>
-        <!-- переплёты -->
         <g stroke="#6b4a25" stroke-width="2">
           <line x1="26" y1="138" x2="36" y2="138"/>
           <line x1="26" y1="212" x2="36" y2="212"/>
@@ -95,7 +90,6 @@
         <text id="boardDate" x="550" y="98" text-anchor="middle"
               font-family="Caveat, monospace" font-size="36" font-weight="700"
               fill="rgba(240,235,220,0.85)" font-style="italic">—</text>
-        <!-- мел и тряпка -->
         <rect x="820" y="122" width="26" height="5" rx="2" fill="#e8ddc0" opacity="0.7"/>
         <rect x="854" y="122" width="26" height="5" rx="2" fill="#e8ddc0" opacity="0.7"/>
         <rect x="225" y="120" width="30" height="14" rx="3" fill="#c8b898" opacity="0.85"/>
@@ -109,10 +103,10 @@
               font-size="12" fill="rgba(255,255,255,0.9)">Учительский стол</text>
       </g>
 
-      <!-- Парты будут здесь -->
+      <!-- Парты (динамические) -->
       <g id="seatsLayer"></g>
 
-      <!-- Праздники и цветы поверх парт -->
+      <!-- Праздники (цветы, фейерверки) -->
       <g id="birthdayLayer"></g>
     </svg>
   </div>
@@ -141,6 +135,13 @@
     </div>
     <div class="modal-error" id="modalError"></div>
   </div>
+</div>
+
+<!-- Tooltip при наведении на ученика -->
+<div class="tooltip" id="tooltip">
+  <div class="tt-name" id="ttName"></div>
+  <div class="tt-comment" id="ttComment"></div>
+  <div class="tt-bday" id="ttBday"></div>
 </div>
 
 <!-- ПРИВЕТСТВЕННЫЙ ОВЕРЛЕЙ -->
