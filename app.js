@@ -518,10 +518,10 @@ function checkBirthdays() {
   if (bdaySeats.length > 0) {
     let bdayText;
     if (bdaySeats.length === 1) {
-      bdayText = '🎂 Сегодня день рождения у ' + bdaySeats[0].name + '!';
+      bdayText = '🎂 С днём рождения — ' + bdaySeats[0].name + '!';
     } else {
       const names = bdaySeats.map(s => s.name).join(', ');
-      bdayText = '🎂 Сегодня день рождения: ' + names + '!';
+      bdayText = '🎂 С днём рождения — ' + names + '!';
     }
     if (birthdayBanner.textContent) {
       birthdayBanner.textContent += ' · ' + bdayText;
