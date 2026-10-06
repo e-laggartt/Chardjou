@@ -30,30 +30,91 @@
     <button class="list-btn" id="aboutBtn">О проекте</button>
   </div>
 
-  <div class="classroom-outer" id="classroomOuter">
-    <div class="classroom-wrap" id="classroomWrap">
-      <div class="classroom-scale" id="classroomScale">
-        <div class="classroom" id="classroom">
-          <div class="wall-top"></div>
-          <div class="wall-left"></div>
-          <div class="wall-right"></div>
+  <div class="classroom-outer">
+    <svg id="scene" viewBox="0 0 1040 700" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="boardGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3a4a35"/>
+          <stop offset="100%" stop-color="#263a22"/>
+        </linearGradient>
+        <linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#e8ddc0"/>
+          <stop offset="100%" stop-color="#ddd0b0"/>
+        </linearGradient>
+        <linearGradient id="deskWoodGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#efe6cf"/>
+          <stop offset="100%" stop-color="#ddd0b0"/>
+        </linearGradient>
+        <linearGradient id="deskWoodTakenGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#d8dfc5"/>
+          <stop offset="100%" stop-color="#c0cba8"/>
+        </linearGradient>
+        <linearGradient id="deskWoodBirthdayGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#fdf3c8"/>
+          <stop offset="100%" stop-color="#f4e090"/>
+        </linearGradient>
+        <linearGradient id="frameWoodGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#b8935f"/>
+          <stop offset="100%" stop-color="#8b6238"/>
+        </linearGradient>
+        <radialGradient id="boardShine">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.08)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+        </radialGradient>
+      </defs>
 
-          <div class="window-full"></div>
+      <!-- Фон класса (стена + пол) -->
+      <rect x="0" y="0" width="1040" height="700" fill="url(#wallGrad)"/>
 
-          <div class="blackboard">
-            <div class="line1" id="boardDate"></div>
-          </div>
+      <!-- Левая стена с окном -->
+      <rect x="0" y="0" width="12" height="700" fill="#a89468"/>
+      <rect x="1028" y="0" width="12" height="700" fill="#a89468"/>
+      <rect x="0" y="0" width="1040" height="12" fill="#a89468"/>
 
-          <div class="teacher-desk">Учительский<br>стол</div>
+      <!-- Окно на левой стене -->
+      <g id="window">
+        <rect x="22" y="60" width="18" height="600" fill="#6b4a25" stroke="#4a3018" stroke-width="2" rx="2"/>
+        <rect x="26" y="64" width="10" height="592" fill="#d8e8f0"/>
+        <!-- переплёты -->
+        <g stroke="#6b4a25" stroke-width="2">
+          <line x1="26" y1="138" x2="36" y2="138"/>
+          <line x1="26" y1="212" x2="36" y2="212"/>
+          <line x1="26" y1="286" x2="36" y2="286"/>
+          <line x1="26" y1="360" x2="36" y2="360"/>
+          <line x1="26" y1="434" x2="36" y2="434"/>
+          <line x1="26" y1="508" x2="36" y2="508"/>
+          <line x1="26" y1="582" x2="36" y2="582"/>
+        </g>
+      </g>
 
-          <div class="seats-grid" id="seatsGrid"></div>
-        </div>
-      </div>
+      <!-- Доска -->
+      <g id="blackboardGroup">
+        <rect x="200" y="30" width="700" height="110" fill="#7a5e34" rx="3"/>
+        <rect x="210" y="40" width="680" height="90" fill="url(#boardGrad)" rx="2"/>
+        <ellipse cx="550" cy="85" rx="200" ry="40" fill="url(#boardShine)"/>
+        <text id="boardDate" x="550" y="98" text-anchor="middle"
+              font-family="Caveat, monospace" font-size="36" font-weight="700"
+              fill="rgba(240,235,220,0.85)" font-style="italic">—</text>
+        <!-- мел и тряпка -->
+        <rect x="820" y="122" width="26" height="5" rx="2" fill="#e8ddc0" opacity="0.7"/>
+        <rect x="854" y="122" width="26" height="5" rx="2" fill="#e8ddc0" opacity="0.7"/>
+        <rect x="225" y="120" width="30" height="14" rx="3" fill="#c8b898" opacity="0.85"/>
+      </g>
 
-      <div class="flower-layer" id="flowerLayer">
-        <div id="birthdayLayer"></div>
-      </div>
-    </div>
+      <!-- Стол учителя -->
+      <g id="teacherDeskGroup">
+        <rect x="420" y="180" width="200" height="72" fill="url(#frameWoodGrad)" stroke="#5e3f1e" stroke-width="2" rx="3"/>
+        <rect x="432" y="192" width="26" height="18" rx="1" fill="rgba(240,235,220,0.9)"/>
+        <text x="520" y="222" text-anchor="middle" font-family="Georgia, serif"
+              font-size="12" fill="rgba(255,255,255,0.9)">Учительский стол</text>
+      </g>
+
+      <!-- Парты будут здесь -->
+      <g id="seatsLayer"></g>
+
+      <!-- Праздники и цветы поверх парт -->
+      <g id="birthdayLayer"></g>
+    </svg>
   </div>
 </div>
 
@@ -99,7 +160,7 @@
         <p>Это виртуальный класс нашей школы. Три периода — 5, 9 и 11 класс. Можно сесть за ту парту, где ты сидел. Или за ту, где всегда мечтал.</p>
         <p>Нажми на свободное место, напиши своё имя — и ты в классе.</p>
         <p>Если хочешь, укажи дату рождения — в твой день рождения на парте появится цветок и фейерверк.</p>
-        <p>На телефоне класс можно приблизить двумя пальцами — раздвинь их, чтобы увеличить, и сдвинь, чтобы уменьшить. При увеличении класс двигается пальцем в стороны.</p>
+        <p>Если имя не видно — приблизь двумя пальцами, как обычно в браузере.</p>
         <p>Кто уже сел — видно по именам. Ищи себя среди знакомых.</p>
       </div>
 
@@ -108,12 +169,6 @@
       <p class="welcome-footer">Собрано одноклассниками, 2026</p>
     </div>
   </div>
-</div>
-
-<div class="tooltip" id="tooltip">
-  <div class="tt-name" id="ttName"></div>
-  <div class="tt-comment" id="ttComment"></div>
-  <div class="tt-bday" id="ttBday"></div>
 </div>
 
 <div class="toast" id="toast"></div>
