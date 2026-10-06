@@ -2,45 +2,39 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzfzJa5q2a5Bab1x9LVC3iI
 
 const NAME_MAX_DESKTOP = 16;
 const NAME_MIN_DESKTOP = 10;
-const NAME_MAX_MOBILE = 18;
-const NAME_MIN_MOBILE = 12;
 const TOTAL_SEATS_PER_PERIOD = 30;
 
-// Ограничения зума
+// Ограничения зума (pinch-to-zoom)
 const ZOOM_MIN = 0.5;
 const ZOOM_MAX = 4.0;
-const ZOOM_STEP = 0.25;
 
 const MONTHS_NOM = ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
 const MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 const DAYS_WEEK = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
 
 // ====== ПРАЗДНИКИ ======
-// day — число, month — месяц 0..11 (9 = октябрь), 0 = январь
-// boardText — что писать на доске
-// bannerText — что писать в баннере сверху
-// bouquet — рисовать ли букет на учительском столе
+// day — число, month — месяц 0..11 (0 = январь, 9 = октябрь)
 const HOLIDAYS = [
   {
-    day: 1, month: 8, // 1 сентября
+    day: 1, month: 8,
     boardText: 'С Днём знаний!',
     bannerText: '📚 С Днём знаний — начало учебного года!',
     bouquet: true
   },
   {
-    day: 5, month: 9, // 5 октября
+    day: 5, month: 9,
     boardText: 'С днём учителя!',
     bannerText: '🌷 Сегодня День учителя — спасибо нашим учителям!',
     bouquet: true
   },
   {
-    day: 25, month: 0, // 25 января
+    day: 25, month: 0,
     boardText: 'С Татьяниным днём!',
     bannerText: '🎓 День студенчества — вспомним студенческие годы!',
     bouquet: true
   },
   {
-    day: 19, month: 4, // 19 мая
+    day: 19, month: 4,
     boardText: 'С Днём пионерии!',
     bannerText: '🔥 День пионерии — вспомним красные галстуки!',
     bouquet: true
@@ -50,7 +44,6 @@ const HOLIDAYS = [
 let currentPeriod = '5';
 let allSeats = [];
 let editingSeat = null;
-let searchQuery = '';
 
 // Зум
 let baseScale = 1;
@@ -75,16 +68,8 @@ const classroomOuter = document.getElementById('classroomOuter');
 const toast = document.getElementById('toast');
 const seatsCounter = document.getElementById('seatsCounter');
 const boardDate = document.getElementById('boardDate');
-const searchInput = document.getElementById('searchInput');
 const birthdayBanner = document.getElementById('birthdayBanner');
 const birthdayLayer = document.getElementById('birthdayLayer');
-
-const listOverlay = document.getElementById('listOverlay');
-const listContent = document.getElementById('listContent');
-const listSub = document.getElementById('listSub');
-const listTitle = document.getElementById('listTitle');
-const listBtn = document.getElementById('listBtn');
-const listClose = document.getElementById('listClose');
 
 const tooltip = document.getElementById('tooltip');
 const ttName = document.getElementById('ttName');
@@ -164,10 +149,8 @@ function clampPan() {
   const totalScale = baseScale * userZoom;
   const realW = classroom.offsetWidth * totalScale;
   const realH = classroom.offsetHeight * totalScale;
-
   const maxX = Math.max(0, realW - wrapW);
   const maxY = Math.max(0, realH - wrapH);
-
   panX = Math.min(0, Math.max(-maxX, panX));
   panY = Math.min(0, Math.max(-maxY, panY));
 }
@@ -193,24 +176,7 @@ window.addEventListener('resize', () => {
   if (holiday && holiday.bouquet) renderTeacherBouquet();
 });
 
-// ====== ЗУМ: КНОПКИ ======
-document.getElementById('zoomIn').addEventListener('click', () => {
-  userZoom = Math.min(ZOOM_MAX, userZoom + ZOOM_STEP);
-  clampPan();
-  applyTransform();
-});
-document.getElementById('zoomOut').addEventListener('click', () => {
-  userZoom = Math.max(ZOOM_MIN, userZoom - ZOOM_STEP);
-  clampPan();
-  applyTransform();
-});
-document.getElementById('zoomReset').addEventListener('click', () => {
-  userZoom = 1;
-  panX = 0; panY = 0;
-  applyTransform();
-});
-
-// ====== ЗУМ: PINCH-TO-ZOOM И ПАN ======
+// ====== PINCH-TO-ZOOM И ПАN (только пальцами) ======
 (function initZoomGestures() {
   const el = classroomOuter;
   let pinchStartDist = 0;
@@ -279,24 +245,6 @@ document.querySelectorAll('.period-btn').forEach(btn => {
     checkBirthdays();
   });
 });
-
-// ====== ПОИСК ======
-searchInput.addEventListener('input', () => {
-  searchQuery = searchInput.value.trim().toLowerCase();
-  applySearchHighlight();
-});
-function applySearchHighlight() {
-  const seats = document.querySelectorAll('.seat');
-  seats.forEach(el => el.classList.remove('dimmed', 'highlighted'));
-  if (!searchQuery) return;
-  seats.forEach(el => {
-    const nameEl = el.querySelector('.seat-name');
-    if (!nameEl) { el.classList.add('dimmed'); return; }
-    const text = (nameEl.textContent || '').toLowerCase();
-    if (text.indexOf(searchQuery) >= 0) el.classList.add('highlighted');
-    else el.classList.add('dimmed');
-  });
-}
 
 // ====== GOOGLE ======
 async function fetchAllSeats() {
@@ -376,7 +324,6 @@ async function deleteSeatOptimistic(seatData) {
 function renderAll() {
   renderGrid();
   updateCounter();
-  applySearchHighlight();
 }
 function renderGrid() {
   grid.innerHTML = '';
@@ -577,64 +524,6 @@ function onDeleteClick(seatData) {
   deleteSeatOptimistic(seatData).catch(() => {});
 }
 
-// ====== МОДАЛКА СПИСОК ======
-listBtn.addEventListener('click', openList);
-listClose.addEventListener('click', () => listOverlay.classList.remove('show'));
-listOverlay.addEventListener('click', e => { if (e.target === listOverlay) listOverlay.classList.remove('show'); });
-
-function openList() {
-  const seats = currentSeats();
-  listTitle.textContent = currentPeriod + ' класс — кто сел';
-  listSub.textContent = 'Всего мест занято: ' + seats.length + ' из ' + TOTAL_SEATS_PER_PERIOD;
-  if (seats.length === 0) {
-    listContent.innerHTML = '<div class="list-empty">Пока никто не сел. Будьте первым!</div>';
-    listOverlay.classList.add('show');
-    return;
-  }
-  const sorted = seats.slice().sort((a, b) => {
-    if (a.row !== b.row) return a.row - b.row;
-    if (a.desk !== b.desk) return a.desk - b.desk;
-    return a.side === 'left' ? -1 : 1;
-  });
-  listContent.innerHTML = '';
-  sorted.forEach(s => {
-    const item = document.createElement('div');
-    item.className = 'list-item';
-    const nameEl = document.createElement('div');
-    nameEl.className = 'li-name';
-    nameEl.textContent = s.name || '';
-    item.appendChild(nameEl);
-    const sideName = s.side === 'left' ? 'левое' : 'правое';
-    const placeEl = document.createElement('div');
-    placeEl.className = 'li-place';
-    placeEl.textContent = 'Ряд ' + s.row + ', парта ' + s.desk + ', ' + sideName + ' место';
-    item.appendChild(placeEl);
-    if (s.comment) {
-      const cEl = document.createElement('div');
-      cEl.className = 'li-comment';
-      cEl.textContent = '«' + s.comment + '»';
-      item.appendChild(cEl);
-    }
-    if (s.birthday) {
-      const parts = s.birthday.split('.');
-      const bEl = document.createElement('div');
-      bEl.className = 'li-bday';
-      bEl.textContent = '🎂 ' + parseInt(parts[0], 10) + ' ' + MONTHS_GEN[parseInt(parts[1], 10) - 1];
-      item.appendChild(bEl);
-    }
-    item.addEventListener('click', () => {
-      listOverlay.classList.remove('show');
-      searchInput.value = s.name || '';
-      searchQuery = (s.name || '').toLowerCase();
-      applySearchHighlight();
-      const el = document.querySelector('.classroom-outer');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-    listContent.appendChild(item);
-  });
-  listOverlay.classList.add('show');
-}
-
 // ====== ПРАЗДНИКИ И ДНИ РОЖДЕНИЯ ======
 function getSeatRect(row, desk, side) {
   const seatEl = grid.querySelector('.seat[data-row="' + row + '"][data-desk="' + desk + '"][data-side="' + side + '"]');
@@ -683,7 +572,6 @@ function checkBirthdays() {
     birthdayBanner.classList.add('show');
     renderBirthdayForCurrentRow();
 
-    // Вернуть букет, если был — renderBirthdayForCurrentRow его стирает
     if (holiday && holiday.bouquet) renderTeacherBouquet();
   }
 }
@@ -693,7 +581,6 @@ function renderBirthdayForCurrentRow() {
   const seats = currentSeats();
   const bdaySeats = seats.filter(isBirthdayToday);
 
-  // Удаляем прошлые элементы именинников, но не букет
   birthdayLayer.querySelectorAll('.birthday-pot, .birthday-label, .fireworks').forEach(el => {
     if (!el.classList.contains('teacher-bouquet')) el.remove();
   });
@@ -707,7 +594,6 @@ function renderBirthdayForCurrentRow() {
       const cx = rect.left + rect.width / 2;
       const topY = rect.top;
 
-      // Горшок
       const potEl = document.createElement('div');
       potEl.className = 'flower-station birthday-pot';
       potEl.style.left = (cx - 20) + 'px';
@@ -725,7 +611,6 @@ function renderBirthdayForCurrentRow() {
         '<div class="pot"></div>';
       birthdayLayer.appendChild(potEl);
 
-      // Плашка
       const label = document.createElement('div');
       label.className = 'birthday-label';
       label.style.left = cx + 'px';
@@ -733,7 +618,6 @@ function renderBirthdayForCurrentRow() {
       label.textContent = 'С днём рождения, ' + seat.name + '!';
       birthdayLayer.appendChild(label);
 
-      // Фейерверк
       const fw = document.createElement('div');
       fw.className = 'fireworks';
       fw.style.left = cx + 'px';
@@ -773,7 +657,6 @@ function renderTeacherBouquet() {
   const teacherDesk = document.querySelector('.teacher-desk');
   if (!teacherDesk) return;
 
-  // Сотрём прежний букет, если был
   birthdayLayer.querySelectorAll('.teacher-bouquet').forEach(el => el.remove());
 
   const wrapRect = classroomWrap.getBoundingClientRect();
@@ -814,7 +697,6 @@ function renderTeacherBouquet() {
       birthdayLayer.appendChild(flower);
     }
 
-    // Фейерверк над столом
     const fw = document.createElement('div');
     fw.className = 'fireworks teacher-bouquet';
     fw.style.left = cx + 'px';
