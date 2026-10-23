@@ -385,40 +385,41 @@ function makeSeat(row, desk, side, x, y, seats) {
 
   // ====== ОТРИСОВКА ТРАУРНОЙ ЛЕНТЫ ======
   if (isDeceased) {
-    // 1. Создаем уникальный ID для обрезки (clip-path)
-    const clipId = 'clip_' + row + '_' + desk + '_' + side;
-    const clipPath = document.createElementNS(SVG_NS, 'clipPath');
-    clipPath.setAttribute('id', clipId);
-    const clipRect = document.createElementNS(SVG_NS, 'rect');
-    clipRect.setAttribute('width', DESK_W);
-    clipRect.setAttribute('height', DESK_H);
-    clipRect.setAttribute('rx', 3);
-    clipPath.appendChild(clipRect);
-    g.appendChild(clipPath);
-
-    // 2. Группа для ленты с применением обрезки
     const ribbonG = document.createElementNS(SVG_NS, 'g');
-    ribbonG.setAttribute('clip-path', 'url(#' + clipId + ')');
-    ribbonG.setAttribute('pointer-events', 'none'); // Чтобы лента не мешала клику
+    ribbonG.setAttribute('pointer-events', 'none');
 
-    // 3. Сама черная полоса
-    const ribbon = document.createElementNS(SVG_NS, 'rect');
-    ribbon.setAttribute('x', DESK_W - 15); 
-    ribbon.setAttribute('y', DESK_H - 45); 
-    ribbon.setAttribute('width', 80);
-    ribbon.setAttribute('height', 12);
+    // Рисуем саму ленту как точный полигон (треугольник в углу)
+    const ribbon = document.createElementNS(SVG_NS, 'polygon');
+    
+    // Координаты для идеальной диагонали из правого нижнего угла
+    // Мы берем точку в углу и отступаем по сторонам
+    const p1 = DESK_W - 4;  // чуть отступаем от правого края
+    const p2 = DESK_H - 4;  // чуть отступаем от нижнего края
+    const thickness = 16;   // толщина ленты
+
+    ribbon.setAttribute('points', 
+      `${p1},${p2} ` +                     // Самый угол
+      `${p1 - thickness},${p2} ` +         // Влево по нижнему краю
+      `${p1},${p2 - thickness}`            // Вверх по правому краю
+    );
+    
     ribbon.setAttribute('fill', '#111');
-    // Поворот
-    ribbon.setAttribute('transform', 'rotate(-45 ' + (DESK_W - 15) + ' ' + (DESK_H - 39) + ')');
-    // Тень
-    ribbon.setAttribute('filter', 'drop-shadow(-2px 2px 3px rgba(0,0,0,0.5))');
+    ribbon.setAttribute('stroke', '#000');
+    ribbon.setAttribute('stroke-width', '1');
 
+    // Добавляем мягкую тень под лентой для объема
+    const shadow = document.createElementNS(SVG_NS, 'polygon');
+    shadow.setAttribute('points', 
+      `${p1 - thickness - 2},${p2 + 1} ` +
+      `${p1 + 1},${p2 + 1} ` +
+      `${p1 + 1},${p2 - thickness - 2}`
+    );
+    shadow.setAttribute('fill', 'rgba(0,0,0,0.3)');
+
+    ribbonG.appendChild(shadow);
     ribbonG.appendChild(ribbon);
     g.appendChild(ribbonG);
   }
-
-  return g;
-}
 
 // ====== TOOLTIP ======
 function showTooltip(e, seatData) {
