@@ -392,7 +392,6 @@ function makeSeat(row, desk, side, x, y, seats) {
     const ribbon = document.createElementNS(SVG_NS, 'polygon');
     
     // Координаты для идеальной диагонали из правого нижнего угла
-    // Мы берем точку в углу и отступаем по сторонам
     const p1 = DESK_W - 4;  // чуть отступаем от правого края
     const p2 = DESK_H - 4;  // чуть отступаем от нижнего края
     const thickness = 16;   // толщина ленты
@@ -420,6 +419,9 @@ function makeSeat(row, desk, side, x, y, seats) {
     ribbonG.appendChild(ribbon);
     g.appendChild(ribbonG);
   }
+
+  return g;
+}
 
 // ====== TOOLTIP ======
 function showTooltip(e, seatData) {
