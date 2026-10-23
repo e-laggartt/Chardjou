@@ -290,6 +290,8 @@ function renderSeats() {
 function makeSeat(row, desk, side, x, y, seats) {
   const seatData = seats.find(s => s.row === row && s.desk === desk && s.side === side);
   const isBday = seatData && isBirthdayToday(seatData);
+  // Проверка на траурную ленту (ждем true от сервера)
+  const isDeceased = seatData && (seatData.deceased === true || seatData.deceased === 'TRUE' || seatData.deceased === 'да');
 
   const g = document.createElementNS(SVG_NS, 'g');
   g.setAttribute('class', 'seat-group' + (isBday ? ' seat-birthday' : ''));
@@ -380,6 +382,41 @@ function makeSeat(row, desk, side, x, y, seats) {
   }
 
   g.addEventListener('click', () => openSeat(row, desk, side, seatData));
+
+  // ====== ОТРИСОВКА ТРАУРНОЙ ЛЕНТЫ ======
+  if (isDeceased) {
+    // 1. Создаем уникальный ID для обрезки (clip-path)
+    const clipId = 'clip_' + row + '_' + desk + '_' + side;
+    const clipPath = document.createElementNS(SVG_NS, 'clipPath');
+    clipPath.setAttribute('id', clipId);
+    const clipRect = document.createElementNS(SVG_NS, 'rect');
+    clipRect.setAttribute('width', DESK_W);
+    clipRect.setAttribute('height', DESK_H);
+    clipRect.setAttribute('rx', 3);
+    clipPath.appendChild(clipRect);
+    g.appendChild(clipPath);
+
+    // 2. Группа для ленты с применением обрезки
+    const ribbonG = document.createElementNS(SVG_NS, 'g');
+    ribbonG.setAttribute('clip-path', 'url(#' + clipId + ')');
+    ribbonG.setAttribute('pointer-events', 'none'); // Чтобы лента не мешала клику
+
+    // 3. Сама черная полоса
+    const ribbon = document.createElementNS(SVG_NS, 'rect');
+    ribbon.setAttribute('x', DESK_W - 15); 
+    ribbon.setAttribute('y', DESK_H - 45); 
+    ribbon.setAttribute('width', 80);
+    ribbon.setAttribute('height', 12);
+    ribbon.setAttribute('fill', '#111');
+    // Поворот
+    ribbon.setAttribute('transform', 'rotate(-45 ' + (DESK_W - 15) + ' ' + (DESK_H - 39) + ')');
+    // Тень
+    ribbon.setAttribute('filter', 'drop-shadow(-2px 2px 3px rgba(0,0,0,0.5))');
+
+    ribbonG.appendChild(ribbon);
+    g.appendChild(ribbonG);
+  }
+
   return g;
 }
 
